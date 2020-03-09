@@ -1,0 +1,539 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+    
+  Java引用类型 - 
+  
+  </title>
+  
+  
+  <link href="atom.xml" rel="alternate" title="" type="application/atom+xml">
+    <link rel="stylesheet" href="asset/css/foundation.min.css" />
+    <link rel="stylesheet" href="asset/css/docs.css" />
+    <script src="asset/js/vendor/modernizr.js"></script>
+    <script src="asset/js/vendor/jquery.js"></script>
+  <script src="asset/highlightjs/highlight.pack.js"></script>
+  <link href="asset/highlightjs/styles/github.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script>hljs.initHighlightingOnLoad();</script>
+<script type="text/javascript">
+  function before_search(){
+    var searchVal = 'site: ' + document.getElementById('search_input').value;
+    document.getElementById('search_q').value = searchVal;
+    return true;
+  }
+</script>
+  </head>
+  <body class="antialiased hide-extras">
+    
+    <div class="marketing off-canvas-wrap" data-offcanvas>
+      <div class="inner-wrap">
+
+
+<nav class="top-bar docs-bar hide-for-small" data-topbar>
+
+
+  <section class="top-bar-section">
+  <div class="row">
+      <div style="position: relative;width:100%;"><div style="position: absolute; width:100%;">
+        <ul id="main-menu" class="left">
+        
+        <li id=""><a target="self" href="index.html">Home</a></li>
+        
+        <li id=""><a target="_self" href="archives.html">Archives</a></li>
+        
+        </ul>
+
+        <ul class="right" id="search-wrap">
+          <li>
+<form target="_blank" onsubmit="return before_search();" action="https://google.com/search" method="get">
+    <input type="hidden" id="search_q" name="q" value="" />
+    <input tabindex="1" type="search" id="search_input"  placeholder="Search"/>
+</form>
+</li>
+          </ul>
+      </div></div>
+  </div>
+  </section>
+
+</nav>
+
+        <nav class="tab-bar show-for-small">
+  <a href="javascript:void(0)" class="left-off-canvas-toggle menu-icon">
+    <span> &nbsp; </span>
+  </a>
+</nav>
+
+<aside class="left-off-canvas-menu">
+      <ul class="off-canvas-list">
+        
+        <li><a target="self" href="index.html">Home</a></li>
+        
+        <li><a target="_self" href="archives.html">Archives</a></li>
+        
+
+    <li><label>Categories</label></li>
+
+        
+            <li><a href="thoughts.html">thoughts</a></li>
+        
+            <li><a href="java.html">java</a></li>
+        
+            <li><a href="machine%20learning.html">machine learning</a></li>
+        
+            <li><a href="network.html">network</a></li>
+        
+            <li><a href="code%20race.html">code race</a></li>
+        
+            <li><a href="database.html">database</a></li>
+         
+
+      </ul>
+    </aside>
+
+<a class="exit-off-canvas" href="#"></a>
+
+
+        <section id="main-content" role="main" class="scroll-container">
+        
+       
+
+ <script type="text/javascript">
+  $(function(){
+    $('#menu_item_index').addClass('is_active');
+  });
+</script>
+<div class="row">
+  <div class="large-8 medium-8 columns">
+      <div class="markdown-body article-wrap">
+       <div class="article">
+          
+          <h1>Java引用类型</h1>
+     
+        <div class="read-more clearfix">
+          <span class="date">2019/2/22</span>
+
+          <span>posted in&nbsp;</span> 
+          
+              <span class="posted-in"><a href='java.html'>java</a></span>
+           
+         
+          <span class="comments">
+            
+
+            
+          </span>
+
+        </div>
+      </div><!-- article -->
+
+      <div class="article-content">
+      <p>Java.lang.ref提供了与Java垃圾回收器密切相关的引用类。共有强引用、软引用、弱引用、虚引用四种引用类型。平时对它们关注不多，基本只使用默认的强引用类，今天稍作总结，感觉有些场景使用其他类型确实可以带来一些便利。同时发现其中有一些细节，已有的部分博客讲得并不清楚，甚至有互相矛盾的地方。</p>
+
+<p>下面这张表简单列出四种类型的特点，具体的用法和场景在后文进行介绍。</p>
+
+<table>
+<thead>
+<tr>
+<th style="text-align: center">引用类型</th>
+<th style="text-align: center">取得目标对象方式</th>
+<th style="text-align: center">垃圾回收条件</th>
+<th style="text-align: center">是否可能内存泄漏</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td style="text-align: center">强引用</td>
+<td style="text-align: center">直接取用</td>
+<td style="text-align: center">不回收</td>
+<td style="text-align: center">可能</td>
+</tr>
+<tr>
+<td style="text-align: center">软引用</td>
+<td style="text-align: center">get()方法取用</td>
+<td style="text-align: center">视内存情况</td>
+<td style="text-align: center">不可能</td>
+</tr>
+<tr>
+<td style="text-align: center">弱引用</td>
+<td style="text-align: center">get()方法取用</td>
+<td style="text-align: center">回收</td>
+<td style="text-align: center">不可能</td>
+</tr>
+<tr>
+<td style="text-align: center">虚引用</td>
+<td style="text-align: center">无法取得</td>
+<td style="text-align: center">不回收</td>
+<td style="text-align: center">可能</td>
+</tr>
+</tbody>
+</table>
+
+<h2 id="toc_0">1.强引用(Strong Reference)</h2>
+
+<p>就是平常使用的默认引用类型，不作过多介绍。</p>
+
+<h2 id="toc_1">2.软引用(Soft Reference)</h2>
+
+<p>若对象只被软引用，则内存空间充足时，不会回收它；内存空间不足时，会回收它。这里需要注意，如果对象同时也被强引用，则在它被取消强引用之前都不会回收它。</p>
+
+<p>软引用可以和一个引用队列（ReferenceQueue）联合使用，如果软引用所引用的对象被垃圾回收器回收，Java虚拟机就会把这个软引用加入到与之关联的引用队列中。</p>
+
+<h3 id="toc_2">示例</h3>
+
+<pre><code class="language-text">// 单独使用
+SoftReference&lt;String&gt; softReference = new String(&quot;123&quot;);
+System.out.println(softReference.get());
+
+// 与引用队列联合使用
+ReferenceQueue&lt;String&gt; referenceQueue = new ReferenceQueue&lt;String&gt;();
+SoftReference&lt;String&gt; softReference = new SoftReference&lt;String&gt;(&quot;123&quot;, referenceQueue);
+System.out.println(softReference.get());
+</code></pre>
+
+<h3 id="toc_3">使用场景</h3>
+
+<p>可以用来解决一些Out Of Memory的问题，同时非常适合用来实现缓存，如浏览器缓存和图片缓存。</p>
+
+<p>一些Android应用可能需要加载许多图片，同时每次展示的图片有限，有些被滑动移出当前界面的图片如果被内存回收也无妨。此时就可以建立一个SoftReference的hashmap，使用图片时，先检查这个hashmap是否有softreference，softreference的图片是否为空，如果为空将图片加载到softreference并加入haspmap。这样当内存不足时，可以先回收一些当前不被使用的图片，而不至于出现OOM的错误。</p>
+
+<pre><code class="language-text">HashMap imageCache = new HashMap&lt;String, SoftReference&lt;String&gt;&gt;();
+imageCache.put(&quot;123&quot;, new SoftReference&lt;String&gt;(&quot;234&quot;));
+</code></pre>
+
+<h2 id="toc_4">3.弱引用(Weak Reference)</h2>
+
+<p>弱引用与软引用的区别在于：只具有弱引用的对象拥有更短暂的生命周期。在垃圾回收器线程扫描它所管辖的内存区域的过程中，一旦发现了只具有弱引用的对象，不管当前内存空间足够与否，都会回收它的内存。不过，由于垃圾回收器是一个优先级很低的线程，因此不一定会很快发现那些只具有弱引用的对象。</p>
+
+<p>弱引用可以和一个引用队列（ReferenceQueue）联合使用，如果弱引用所引用的对象被垃圾回收，Java虚拟机就会把这个弱引用加入到与之关联的引用队列中。</p>
+
+<h3 id="toc_5">示例</h3>
+
+<pre><code class="language-text">// 单独使用
+WeakReference&lt;String&gt; weakReference = new String(&quot;123&quot;);
+System.out.println(weakReference.get());
+
+// 与引用队列联合使用
+ReferenceQueue&lt;String&gt; referenceQueue = new ReferenceQueue&lt;String&gt;();
+WeakReference&lt;String&gt; weakReference = new WeakReference&lt;String&gt;(&quot;123&quot;, referenceQueue);
+System.out.println(weakReference.get());
+</code></pre>
+
+<h3 id="toc_6">使用场景</h3>
+
+<p>例如有许多Products，我们需要用HashMap存储它们和它们的编号，当我们对其中一个Product进行一些操作后，不需要使用了，此时希望GC将该对象回收，则此时仅仅将强引用的赋值为null仍不够，因为它还被HashMap引用着。如果我们不想每次遇到这种情况都在HashMap中删除相关元素，就可以用弱引用来实现。</p>
+
+<p>下面代码中第一种实现可以用第二种实现代替。</p>
+
+<pre><code class="language-text">Produce productA = new Product(...);
+productToId.put(productA, 1);
+
+...
+
+// 执行一些操作后不在需要用到productA了，想回收它
+productA = null;
+productToId.remove(productA);
+
+</code></pre>
+
+<pre><code class="language-text">Produce productA = new Product(...);
+WeakReference&lt;Product&gt; weakProductA = new WeakReference&lt;Product&gt;(product);
+HashMap&lt;Product, int&gt; productToId = new HashMap&lt;Product, int&gt;();
+productToId.put(weakProductA, 1);
+
+...
+
+// 执行一些操作后不在需要用到productA了，想回收它
+productA = null;
+
+</code></pre>
+
+<h2 id="toc_7">4.虚引用(Phantom Reference)</h2>
+
+<p>“虚引用”顾名思义，就是形同虚设，与其他几种引用都不同，虚引用并不会决定对象的生命周期。如果一个对象仅持有虚引用，那么它就和没有任何引用一样，在任何时候都可能被垃圾回收器回收。</p>
+
+<p>虚引用与软引用和弱引用有3个区别：</p>
+
+<ol>
+<li>虚引用必须和引用队列（ReferenceQueue）联合使用。</li>
+<li>同时，在执行垃圾回收的策略上PhantomReference和其它Reference也有一些不同：PhantomReference进入队列之后JVM不会自动回收，需要人为调用clear方法后才最终释放。</li>
+<li>如果类重写了finalize()方法，则在对象第一次疑似要被回收时，弱引用就被加入队列中，而只有在确定要被回收时，虚引用才会被放入队列中。</li>
+</ol>
+
+<h3 id="toc_8">示例</h3>
+
+<pre><code class="language-text">// 只能单独使用
+ReferenceQueue&lt;String&gt; referenceQueue = new ReferenceQueue&lt;String&gt;();
+PhantomReference&lt;String&gt; pr = new PhantomReference&lt;String&gt;((&quot;123&quot;), referenceQueue);
+System.out.println(pr.get()); // 输出为 null
+</code></pre>
+
+<pre><code class="language-text">// 当存在finalize时
+public class PhantomReferenceTest {
+
+    public static void main(String[] args) throws Exception {
+        ReferenceQueue&lt;Test&gt; queue = new ReferenceQueue&lt;&gt;();
+        Thread moniterThread = new Thread(() -&gt; {
+            // 监视线程，随时检查引用队列，一旦发现引用就会打印出来
+            for (;;) {
+                Reference&lt;? extends Test&gt; ref = queue.poll();
+                if (ref != null) {
+                    System.out.printf(&quot;%s加入引用队列%n&quot;, ref.getClass().getSimpleName());
+                }
+                try {
+                    Thread.sleep(0);
+                } catch (InterruptedException e) {
+                    break;
+                }
+            }
+        });
+        moniterThread.start();
+        Test test = new Test();
+        WeakReference&lt;Test&gt; weakReference = new WeakReference&lt;Test&gt;(test, queue);
+        PhantomReference&lt;Test&gt; phantomReference = new PhantomReference&lt;Test&gt;(test, queue);
+        // 去除强引用
+        test = null;
+        System.out.println(&quot;&gt;&gt; 第一次gc &lt;&lt;&quot;);
+        System.gc();
+        // 这里等待一段时间，保证引用进入队列，和finalize()方法执行
+        Thread.sleep(100);
+        System.out.println(&quot;\n&gt;&gt; 第二次gc &lt;&lt;&quot;);
+        System.gc();
+        assert weakReference != null &amp;&amp; phantomReference != null;
+        moniterThread.interrupt();
+    }
+
+    public static class Test {
+
+        @Override
+        protected void finalize() throws Throwable {
+            System.out.println(&quot;== finalize() ==&quot;);
+        }
+    }
+}
+
+// 输出结果为
+&gt;&gt; 第一次gc &lt;&lt;
+== finalize() ==
+WeakReference加入引用队列
+
+&gt;&gt; 第二次gc &lt;&lt;
+PhantomReference加入引用队列
+</code></pre>
+
+<h3 id="toc_9">使用场景</h3>
+
+<p>虚引用主要用来跟踪对象被垃圾收集器回收的活动，为一个对象设置虚引用关联的唯一目的就是能在这个对象被收集器回收时收到一个系统通知。可以用来替代finalize（finalize的使用可能会带来如使对象再次被引用的问题，且相关机制涉及到多线程，比较不稳定，因此要谨慎使用），相关的介绍可以参考<a href="https://zhuanlan.zhihu.com/p/55114919">在Java中使用PhantomReference析构资源对象</a>。</p>
+
+<blockquote>
+<p>You should also use finalization only when it is absolutely necessary. Finalization is a nondeterministic -- and sometimes unpredictable -- process. The less you rely on it, the smaller the impact it will have on the JVM and your application.<br/>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;——Joshua Bloch《Effective Java, 2nd》  </p>
+</blockquote>
+
+<p>&emsp;</p>
+
+<blockquote>
+<p>特殊引用类型的定义似乎经历了几次调整，尤其是关于虚引用的定义，不同版本的Javadoc有不同的描述。</p>
+</blockquote>
+
+
+    
+
+      </div>
+
+      <div class="row">
+        <div class="large-6 columns">
+        <p class="text-left" style="padding:15px 0px;">
+      
+          <a href="15558113568363.html" 
+          title="Previous Post: Java内存模型">&laquo; Java内存模型</a>
+      
+        </p>
+        </div>
+        <div class="large-6 columns">
+      <p class="text-right" style="padding:15px 0px;">
+      
+          <a  href="15503925195196.html" 
+          title="Next Post: 第四届阿里中间件性能挑战赛（复赛）">第四届阿里中间件性能挑战赛（复赛） &raquo;</a>
+      
+      </p>
+        </div>
+      </div>
+      <div class="comments-wrap">
+        <div class="share-comments">
+          
+
+          
+
+          
+        </div>
+      </div>
+    </div><!-- article-wrap -->
+  </div><!-- large 8 -->
+
+
+
+
+ <div class="large-4 medium-4 columns">
+  <div class="hide-for-small">
+    <div id="sidebar" class="sidebar">
+          <div id="site-info" class="site-info">
+            
+                <div class="site-a-logo"><img src="asset/img/photo.jpg" /></div>
+            
+                <h1></h1>
+                <div class="site-des"></div>
+                <div class="social">
+
+
+
+
+
+
+
+
+
+
+<a target="_blank" class="email" href="mailto:669279048@qq.com" title="Email">Email</a>
+  <a target="_blank" class="rss" href="atom.xml" title="RSS">RSS</a>
+                
+              	 </div>
+          	</div>
+
+             
+
+              <div id="site-categories" class="side-item ">
+                <div class="side-header">
+                  <h2>Categories</h2>
+                </div>
+                <div class="side-content">
+
+      	<p class="cat-list">
+        
+            <a href="thoughts.html"><strong>thoughts</strong></a>
+        
+            <a href="java.html"><strong>java</strong></a>
+        
+            <a href="machine%20learning.html"><strong>machine learning</strong></a>
+        
+            <a href="network.html"><strong>network</strong></a>
+        
+            <a href="code%20race.html"><strong>code race</strong></a>
+        
+            <a href="database.html"><strong>database</strong></a>
+         
+        </p>
+
+
+                </div>
+              </div>
+
+              <div id="site-categories" class="side-item">
+                <div class="side-header">
+                  <h2>Recent Posts</h2>
+                </div>
+                <div class="side-content">
+                <ul class="posts-list">
+	      
+		      
+			      <li class="post">
+			        <a href="15705258754708.html">联邦学习和联合学习</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="15704371126805.html">OceanBase登顶TPC-C榜单</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="15605037286643.html">自研分布式关系型数据库</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="15605036887704.html">Oracle Enterprise Manager</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="15595701991747.html">Ubuntu系统Android环境搭建</a>
+			      </li>
+		     
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		   
+		  		</ul>
+                </div>
+              </div>
+        </div><!-- sidebar -->
+      </div><!-- hide for small -->
+</div><!-- large 4 -->
+
+</div><!-- row -->
+
+ <div class="page-bottom clearfix">
+  <div class="row">
+   <p class="copyright">Copyright &copy; 2015
+Powered by <a target="_blank" href="http://www.mweb.im">MWeb</a>,&nbsp; 
+Theme used <a target="_blank" href="http://github.com">GitHub CSS</a>.</p>
+  </div>
+</div>
+
+        </section>
+      </div>
+    </div>
+
+  
+    
+
+    <script src="asset/js/foundation.min.js"></script>
+    <script>
+      $(document).foundation();
+      function fixSidebarHeight(){
+        var w1 = $('.markdown-body').height();
+          var w2 = $('#sidebar').height();
+          if (w1 > w2) { $('#sidebar').height(w1); };
+      }
+      $(function(){
+        fixSidebarHeight();
+      })
+      $(window).load(function(){
+          fixSidebarHeight();
+      });
+     
+    </script>
+
+    
+
+
+
+  </body>
+</html>

@@ -1,0 +1,462 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+    
+  JVM垃圾收集器与内存分配策略（二） - 
+  
+  </title>
+  
+  
+  <link href="atom.xml" rel="alternate" title="" type="application/atom+xml">
+    <link rel="stylesheet" href="asset/css/foundation.min.css" />
+    <link rel="stylesheet" href="asset/css/docs.css" />
+    <script src="asset/js/vendor/modernizr.js"></script>
+    <script src="asset/js/vendor/jquery.js"></script>
+  <script src="asset/highlightjs/highlight.pack.js"></script>
+  <link href="asset/highlightjs/styles/github.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script>hljs.initHighlightingOnLoad();</script>
+<script type="text/javascript">
+  function before_search(){
+    var searchVal = 'site: ' + document.getElementById('search_input').value;
+    document.getElementById('search_q').value = searchVal;
+    return true;
+  }
+</script>
+  </head>
+  <body class="antialiased hide-extras">
+    
+    <div class="marketing off-canvas-wrap" data-offcanvas>
+      <div class="inner-wrap">
+
+
+<nav class="top-bar docs-bar hide-for-small" data-topbar>
+
+
+  <section class="top-bar-section">
+  <div class="row">
+      <div style="position: relative;width:100%;"><div style="position: absolute; width:100%;">
+        <ul id="main-menu" class="left">
+        
+        <li id=""><a target="self" href="index.html">Home</a></li>
+        
+        <li id=""><a target="_self" href="archives.html">Archives</a></li>
+        
+        </ul>
+
+        <ul class="right" id="search-wrap">
+          <li>
+<form target="_blank" onsubmit="return before_search();" action="https://google.com/search" method="get">
+    <input type="hidden" id="search_q" name="q" value="" />
+    <input tabindex="1" type="search" id="search_input"  placeholder="Search"/>
+</form>
+</li>
+          </ul>
+      </div></div>
+  </div>
+  </section>
+
+</nav>
+
+        <nav class="tab-bar show-for-small">
+  <a href="javascript:void(0)" class="left-off-canvas-toggle menu-icon">
+    <span> &nbsp; </span>
+  </a>
+</nav>
+
+<aside class="left-off-canvas-menu">
+      <ul class="off-canvas-list">
+        
+        <li><a target="self" href="index.html">Home</a></li>
+        
+        <li><a target="_self" href="archives.html">Archives</a></li>
+        
+
+    <li><label>Categories</label></li>
+
+        
+            <li><a href="thoughts.html">thoughts</a></li>
+        
+            <li><a href="java.html">java</a></li>
+        
+            <li><a href="machine%20learning.html">machine learning</a></li>
+        
+            <li><a href="network.html">network</a></li>
+        
+            <li><a href="code%20race.html">code race</a></li>
+        
+            <li><a href="database.html">database</a></li>
+         
+
+      </ul>
+    </aside>
+
+<a class="exit-off-canvas" href="#"></a>
+
+
+        <section id="main-content" role="main" class="scroll-container">
+        
+       
+
+ <script type="text/javascript">
+  $(function(){
+    $('#menu_item_index').addClass('is_active');
+  });
+</script>
+<div class="row">
+  <div class="large-8 medium-8 columns">
+      <div class="markdown-body article-wrap">
+       <div class="article">
+          
+          <h1>JVM垃圾收集器与内存分配策略（二）</h1>
+     
+        <div class="read-more clearfix">
+          <span class="date">2019/1/28</span>
+
+          <span>posted in&nbsp;</span> 
+          
+              <span class="posted-in"><a href='java.html'>java</a></span>
+           
+         
+          <span class="comments">
+            
+
+            
+          </span>
+
+        </div>
+      </div><!-- article -->
+
+      <div class="article-content">
+      <p>垃圾收集器可以看作是对垃圾收集算法的具体实现。JVM规范中没有明确规定垃圾收集器应该如何实现，因此不同厂商、版本的虚拟机所提供的垃圾收集器可能会有很大差别，且一般都会提供参数供用户订制。书中主要对JDK1.7之后的HotSpot虚拟机使用的垃圾收集器进行介绍。</p>
+
+<h2 id="toc_0">垃圾收集器</h2>
+
+<table>
+<thead>
+<tr>
+<th style="text-align: center">垃圾收集器</th>
+<th style="text-align: center">收集算法</th>
+<th style="text-align: center">原理</th>
+<th style="text-align: center">优点</th>
+<th style="text-align: center">适用场景</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td style="text-align: center">Serial</td>
+<td style="text-align: center">复制</td>
+<td style="text-align: center">单线程、停止用户线程</td>
+<td style="text-align: center">简单高效</td>
+<td style="text-align: center">Client/新生代</td>
+</tr>
+<tr>
+<td style="text-align: center">Parallel</td>
+<td style="text-align: center">复制</td>
+<td style="text-align: center">Serial的多线程版本、停止用户线程</td>
+<td style="text-align: center">简单高效</td>
+<td style="text-align: center">Client/新生代</td>
+</tr>
+<tr>
+<td style="text-align: center">Parallel Scavenge</td>
+<td style="text-align: center">复制</td>
+<td style="text-align: center">与Parallel类似，通过自动调节新生代大小、新生老年代比例、晋升老年代大小来达到吞吐量最大化目标</td>
+<td style="text-align: center">吞吐量高</td>
+<td style="text-align: center">Server/新生代</td>
+</tr>
+<tr>
+<td style="text-align: center">Serial Old</td>
+<td style="text-align: center">标记-整理</td>
+<td style="text-align: center">Serial收集器的老年代版本</td>
+<td style="text-align: center">简单高效</td>
+<td style="text-align: center">Client/老年代</td>
+</tr>
+<tr>
+<td style="text-align: center">Parallel-Old</td>
+<td style="text-align: center">标记-整理</td>
+<td style="text-align: center">Parallel Scavenge算法的老年代版本</td>
+<td style="text-align: center">吞吐量高</td>
+<td style="text-align: center">Server/老年代</td>
+</tr>
+<tr>
+<td style="text-align: center">CMS</td>
+<td style="text-align: center">标记-清除</td>
+<td style="text-align: center">包含初始标记、并发标记、重新标记、并发清楚四个步骤</td>
+<td style="text-align: center">停顿时间短</td>
+<td style="text-align: center">网站、B/S系统服务器/老年代</td>
+</tr>
+<tr>
+<td style="text-align: center">G1</td>
+<td style="text-align: center">标记-整理</td>
+<td style="text-align: center">引入Region概念，包含初始标记、并发标记、最终标记、筛选回收四个步骤</td>
+<td style="text-align: center">可预测的停顿</td>
+<td style="text-align: center">Server/新生、老年代</td>
+</tr>
+</tbody>
+</table>
+
+<h2 id="toc_1">CMS</h2>
+
+<p>CMS(Concurrent Mark Sweep)收集器是一种以获取最短回收停顿时间为目标的收集器。非常适用于互联网或者B/S系统的服务端，可以提升服务的响应速度，以给用户带来较好的体验。<br/>
+垃圾收集过程分为4个步骤：</p>
+
+<ol>
+<li><p>初始标记<br/>
+标记GC Roots能直接关联到的对象，需要停止用户线程。</p></li>
+<li><p>并发标记<br/>
+通过数据分析，标记能从GC Roots到达的变量，不需要停止用户线程。</p></li>
+<li><p>重新标记<br/>
+修正并发标记期间因用户程序继续运行而导致的标记不准确或未标记的情况，需要停止用户线程。</p></li>
+<li><p>并发清除<br/>
+使用标记-清楚算法进行垃圾清除，不需要停止用户线程。</p></li>
+</ol>
+
+<p>CMS主要有以下缺点：</p>
+
+<ul>
+<li><p>对CPU资源敏感<br/>
+并发阶段虽然不会导致用户线程停止运行，但是会因为占用了一部分线程而导致应用程序变慢，总吞吐量会降低。</p></li>
+<li><p>无法处理浮动垃圾<br/>
+由于并发清理阶段用户线程还在运行，还会有新的对象被放入老年代，这一部分包含的垃圾无法在当次收集中被处理掉，只好留待下次GC时再清理掉，这部分垃圾就被称作“浮动垃圾”。</p></li>
+<li><p>需要预留空间供并发收集时的程序运作使用<br/>
+因为在并发收集垃圾的过程中，仍会产生新的对象，因此不能像其他垃圾收集器那样等到老年代内存快满了再进行垃圾收集</p></li>
+<li><p>会产生空间碎片<br/>
+因为采用标记-清除算法，所以会有这种情况。可以进行参数设置，在一定时候进行内存碎片整理。</p></li>
+</ul>
+
+<h2 id="toc_2">G1</h2>
+
+<p>G1是一款面向服务端的垃圾收集器，开发团队希望它能在未来替换掉CMS收集器。<br/>
+G1的一个主要特点就是引入Region的概念，内存不再明确划分为新生代和老年代两个部分，而是将整个Java堆划分为多个大小相等的独立区域即Region，新生代和老年代不再是物理隔离的，它们都是一部分Region的集合。</p>
+
+<p>垃圾收集过程分为4个步骤：</p>
+
+<ol>
+<li><p>初始标记<br/>
+与CMS的初始标记过程一致。</p></li>
+<li><p>并发标记<br/>
+与CMS的并发标记过程一致。</p></li>
+<li><p>最终标记<br/>
+与CMS的重新标记过程类似，根据Log信息，对一些标记过程中因用户线程继续运行而产生的变动进行处理。</p></li>
+<li><p>筛选回收<br/>
+首先对各个Region的回收价值和成本进行排序，然后根据用户所期望的GC停顿时间来制定回收计划。这部分可以与用户线程一同执行，但是因为只回收部分Region所以时间可控，可以停止用户线程执行这个过程，如果停止用户线程将大幅提高该阶段效率。</p></li>
+</ol>
+
+<p>相对CMS，G1主要有以下特点：</p>
+
+<ul>
+<li><p>分代收集<br/>
+G1不需要其他收集器配合就可以管理整个GC堆，它可以根据新生代和老年代的特性来采用不同的方式对内存进行清理。</p></li>
+<li><p>空间整合<br/>
+G1从整体上看属于标记-整理算法，从局部（两个Region之间）来看属于复制算法。无论从哪个角度来理解，G1都能避免产生内存碎片的情况。</p></li>
+<li><p>可预测的停顿<br/>
+短停顿是CMS和G1的共同目标，但是G1在低停顿的基础上，还能建立可预测的停顿时间模型。因为每次只是根据情况选取部分Region进行清理而不是对整个堆进行处理，所以用户可以通过参数设置，有效控制停顿时间。</p></li>
+</ul>
+
+<h2 id="toc_3">Remembered Set</h2>
+
+<p>各类垃圾收集器都需要考虑的问题之一就是在可达性分析的时候，如何避免全盘扫描以提高效率。因为新生代中的对象可能被老年代引用、一个Region中的对象可能被另一个Region中的对象引用，所以全盘扫描似乎无可避免。</p>
+
+<p>这时Remembered Set就起了作用。垃圾收集器针为每个区域（老年代、新生代或每个Region）都维护了一个Remembered Set，当虚拟机发现程序对Reference类型的数据进行写操作时，会产生一个中断写操作，检查Reference引用的对象是否处于不同的区域，如果是就把相关的引用信息记录到被引用对象所属的区域的Remembered Set之中。这样在进行内存回收时，在GC根节点的枚举范围中加入Remembered Set记录的被引用的那些对象，只需要查看GC根节点中有多少属于当前区域，然后对它们进行可达性分析就可以得到当前区域不需要被清理的对象。总的来说，Remembered Set保证了不对全堆扫描也不会出现误清理的情况。</p>
+
+
+    
+
+      </div>
+
+      <div class="row">
+        <div class="large-6 columns">
+        <p class="text-left" style="padding:15px 0px;">
+      
+          <a href="15488567674808.html" 
+          title="Previous Post: Keras模型构建的两种方式">&laquo; Keras模型构建的两种方式</a>
+      
+        </p>
+        </div>
+        <div class="large-6 columns">
+      <p class="text-right" style="padding:15px 0px;">
+      
+          <a  href="15482941601772.html" 
+          title="Next Post: JVM垃圾收集器与内存分配策略（一）">JVM垃圾收集器与内存分配策略（一） &raquo;</a>
+      
+      </p>
+        </div>
+      </div>
+      <div class="comments-wrap">
+        <div class="share-comments">
+          
+
+          
+
+          
+        </div>
+      </div>
+    </div><!-- article-wrap -->
+  </div><!-- large 8 -->
+
+
+
+
+ <div class="large-4 medium-4 columns">
+  <div class="hide-for-small">
+    <div id="sidebar" class="sidebar">
+          <div id="site-info" class="site-info">
+            
+                <div class="site-a-logo"><img src="asset/img/photo.jpg" /></div>
+            
+                <h1></h1>
+                <div class="site-des"></div>
+                <div class="social">
+
+
+
+
+
+
+
+
+
+
+<a target="_blank" class="email" href="mailto:669279048@qq.com" title="Email">Email</a>
+  <a target="_blank" class="rss" href="atom.xml" title="RSS">RSS</a>
+                
+              	 </div>
+          	</div>
+
+             
+
+              <div id="site-categories" class="side-item ">
+                <div class="side-header">
+                  <h2>Categories</h2>
+                </div>
+                <div class="side-content">
+
+      	<p class="cat-list">
+        
+            <a href="thoughts.html"><strong>thoughts</strong></a>
+        
+            <a href="java.html"><strong>java</strong></a>
+        
+            <a href="machine%20learning.html"><strong>machine learning</strong></a>
+        
+            <a href="network.html"><strong>network</strong></a>
+        
+            <a href="code%20race.html"><strong>code race</strong></a>
+        
+            <a href="database.html"><strong>database</strong></a>
+         
+        </p>
+
+
+                </div>
+              </div>
+
+              <div id="site-categories" class="side-item">
+                <div class="side-header">
+                  <h2>Recent Posts</h2>
+                </div>
+                <div class="side-content">
+                <ul class="posts-list">
+	      
+		      
+			      <li class="post">
+			        <a href="15705258754708.html">联邦学习和联合学习</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="15704371126805.html">OceanBase登顶TPC-C榜单</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="15605037286643.html">自研分布式关系型数据库</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="15605036887704.html">Oracle Enterprise Manager</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="15595701991747.html">Ubuntu系统Android环境搭建</a>
+			      </li>
+		     
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		   
+		  		</ul>
+                </div>
+              </div>
+        </div><!-- sidebar -->
+      </div><!-- hide for small -->
+</div><!-- large 4 -->
+
+</div><!-- row -->
+
+ <div class="page-bottom clearfix">
+  <div class="row">
+   <p class="copyright">Copyright &copy; 2015
+Powered by <a target="_blank" href="http://www.mweb.im">MWeb</a>,&nbsp; 
+Theme used <a target="_blank" href="http://github.com">GitHub CSS</a>.</p>
+  </div>
+</div>
+
+        </section>
+      </div>
+    </div>
+
+  
+    
+
+    <script src="asset/js/foundation.min.js"></script>
+    <script>
+      $(document).foundation();
+      function fixSidebarHeight(){
+        var w1 = $('.markdown-body').height();
+          var w2 = $('#sidebar').height();
+          if (w1 > w2) { $('#sidebar').height(w1); };
+      }
+      $(function(){
+        fixSidebarHeight();
+      })
+      $(window).load(function(){
+          fixSidebarHeight();
+      });
+     
+    </script>
+
+    
+
+
+
+  </body>
+</html>

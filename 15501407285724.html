@@ -1,0 +1,387 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+    
+  根据IP地址进行数据传输的流程 - 
+  
+  </title>
+  
+  
+  <link href="atom.xml" rel="alternate" title="" type="application/atom+xml">
+    <link rel="stylesheet" href="asset/css/foundation.min.css" />
+    <link rel="stylesheet" href="asset/css/docs.css" />
+    <script src="asset/js/vendor/modernizr.js"></script>
+    <script src="asset/js/vendor/jquery.js"></script>
+  <script src="asset/highlightjs/highlight.pack.js"></script>
+  <link href="asset/highlightjs/styles/github.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script>hljs.initHighlightingOnLoad();</script>
+<script type="text/javascript">
+  function before_search(){
+    var searchVal = 'site: ' + document.getElementById('search_input').value;
+    document.getElementById('search_q').value = searchVal;
+    return true;
+  }
+</script>
+  </head>
+  <body class="antialiased hide-extras">
+    
+    <div class="marketing off-canvas-wrap" data-offcanvas>
+      <div class="inner-wrap">
+
+
+<nav class="top-bar docs-bar hide-for-small" data-topbar>
+
+
+  <section class="top-bar-section">
+  <div class="row">
+      <div style="position: relative;width:100%;"><div style="position: absolute; width:100%;">
+        <ul id="main-menu" class="left">
+        
+        <li id=""><a target="self" href="index.html">Home</a></li>
+        
+        <li id=""><a target="_self" href="archives.html">Archives</a></li>
+        
+        </ul>
+
+        <ul class="right" id="search-wrap">
+          <li>
+<form target="_blank" onsubmit="return before_search();" action="https://google.com/search" method="get">
+    <input type="hidden" id="search_q" name="q" value="" />
+    <input tabindex="1" type="search" id="search_input"  placeholder="Search"/>
+</form>
+</li>
+          </ul>
+      </div></div>
+  </div>
+  </section>
+
+</nav>
+
+        <nav class="tab-bar show-for-small">
+  <a href="javascript:void(0)" class="left-off-canvas-toggle menu-icon">
+    <span> &nbsp; </span>
+  </a>
+</nav>
+
+<aside class="left-off-canvas-menu">
+      <ul class="off-canvas-list">
+        
+        <li><a target="self" href="index.html">Home</a></li>
+        
+        <li><a target="_self" href="archives.html">Archives</a></li>
+        
+
+    <li><label>Categories</label></li>
+
+        
+            <li><a href="thoughts.html">thoughts</a></li>
+        
+            <li><a href="java.html">java</a></li>
+        
+            <li><a href="machine%20learning.html">machine learning</a></li>
+        
+            <li><a href="network.html">network</a></li>
+        
+            <li><a href="code%20race.html">code race</a></li>
+        
+            <li><a href="database.html">database</a></li>
+         
+
+      </ul>
+    </aside>
+
+<a class="exit-off-canvas" href="#"></a>
+
+
+        <section id="main-content" role="main" class="scroll-container">
+        
+       
+
+ <script type="text/javascript">
+  $(function(){
+    $('#menu_item_index').addClass('is_active');
+  });
+</script>
+<div class="row">
+  <div class="large-8 medium-8 columns">
+      <div class="markdown-body article-wrap">
+       <div class="article">
+          
+          <h1>根据IP地址进行数据传输的流程</h1>
+     
+        <div class="read-more clearfix">
+          <span class="date">2019/2/14</span>
+
+          <span>posted in&nbsp;</span> 
+          
+              <span class="posted-in"><a href='network.html'>network</a></span>
+           
+         
+          <span class="comments">
+            
+
+            
+          </span>
+
+        </div>
+      </div><!-- article -->
+
+      <div class="article-content">
+      <p>网络结构中，书本通常对应用层、传输层的介绍比较明确，因为这部分主要通过软件进行实现；而网络层、链路层、物理层通常只对原理进行介绍，因为这些部分涉及到具体的硬件实现，华为、思科等厂商都有自己定义的协议且有许多保密内容。之前一直对数据传输过程中的一些不太明确，这里就结合书本、博客的讲解，对两个主机间通过IP地址进行数据传输的流程进行简单梳理。</p>
+
+<h2 id="toc_0">具体流程</h2>
+
+<ol>
+<li><p>主机A中的某个应用程序需要与主机B进行通信以获取信息。该应用程序调用传输层进而调用网络层提供的接口对数据进行组装，在调用接口的过程中，主要提供以下信息：</p>
+<blockquote>
+<p>主机A的IP地址<br/>
+主机B的IP地址</p>
+</blockquote></li>
+<li><p>主机A的网络层将子网掩码、主机B的IP地址进行与运算，并与自己的IP比较来判断B是否在自己的子网中</p></li>
+<li><p>如果主机A和B在同一个子网中，那么就可以直接在局域网中进行通信。这种情况下，如果A不知道B的MAC地址，就要先通过ARP(Address Resolution Protocol)协议，以广播的方式通知B告知自己的MAC地址。当A知道B的MAC地址后，链路层就可以将数据进行封装，并发送到局域网中，封装后的数据主要包含以下信息：</p>
+<blockquote>
+<p>源MAC地址：A的MAC地址<br/>
+目的MAC地址：B的MAC地址<br/>
+源IP地址：A的IP地址<br/>
+目的IP地址：B的IP地址</p>
+</blockquote>
+<p>如果主机A和B不在同一个子网中，那么A的链路层就需要与局域网中的路由器1进行通信，同样的，如果不知道路由器的MAC地址，也要通过ARP协议获取。然后就可以通过链路层将数据进行封装，并发送到局域网中，封装后的数据主要包含以下信息：</p>
+<blockquote>
+<p>源MAC地址：A的MAC地址<br/>
+目的MAC地址：路由器1的MAC地址<br/>
+源IP地址：A的IP地址<br/>
+目的IP地址：B的IP地址</p>
+</blockquote></li>
+<li><p>路由器1获取了数据帧后自底向上层层解析，拆包获取目的IP地址，并判断目的IP对应的主机是否在自己直接联系的某个子网中，如果不在就根据自身路由表确定下一条路由的路径（假设是路由器2）。确定后将路由器2的MAC地址封装到数据帧中，数据帧的主要内容大致如下：</p>
+<blockquote>
+<p>源MAC地址：路由器1的MAC地址<br/>
+目的MAC地址：路由器2的MAC地址<br/>
+源IP地址：A的IP地址<br/>
+目的IP地址：B的IP地址</p>
+</blockquote></li>
+<li><p>之后的路由器都重复步骤4中的内容，直到某个路由器判断出目的IP对应的主机与自身在同一个子网中，此时就可以通过ARP协议获取B的MAC地址，然后在局域网中进行通信，此时数据帧的主要内容大致如下：</p>
+<blockquote>
+<p>源MAC地址：路由器N的MAC地址<br/>
+目的MAC地址：B的MAC地址<br/>
+源IP地址：A的IP地址<br/>
+目的IP地址：B的IP地址</p>
+</blockquote></li>
+</ol>
+
+<h2 id="toc_1">概念辨析</h2>
+
+<ol>
+<li><p>路由器、交换机、网桥</p>
+<ul>
+<li>路由器工作在网络层、根据IP地址进行路由（确定下一条路由后应该还是需要通过链路层添加MAC地址相关的信息）、可为主机分配IP地址</li>
+<li>交换机工作在链路层、根据MAC地址进行链路选择、工作在局域网中、不可为主机分配IP地址</li>
+<li>网桥即为交换机</li>
+</ul></li>
+<li><p>局域网、子网</p>
+<ul>
+<li>局域网，一般指二层可达的网络。也就是网络里面不需要三层设备（路由器）就可以保证可达性。</li>
+<li>子网，是个相对概念。和局域网没有直接关系。但是，一般在不讲求精确性的语境中，子网却是对应着局域网。即谈论子网指的是全网的子网，，子网内部二层可达，子网之间需要三层设备路由。</li>
+</ul></li>
+</ol>
+
+
+    
+
+      </div>
+
+      <div class="row">
+        <div class="large-6 columns">
+        <p class="text-left" style="padding:15px 0px;">
+      
+          <a href="15502058354272.html" 
+          title="Previous Post: 父类引用指向子类对象">&laquo; 父类引用指向子类对象</a>
+      
+        </p>
+        </div>
+        <div class="large-6 columns">
+      <p class="text-right" style="padding:15px 0px;">
+      
+          <a  href="15490242929236.html" 
+          title="Next Post: JVM垃圾收集器与内存分配策略（三）">JVM垃圾收集器与内存分配策略（三） &raquo;</a>
+      
+      </p>
+        </div>
+      </div>
+      <div class="comments-wrap">
+        <div class="share-comments">
+          
+
+          
+
+          
+        </div>
+      </div>
+    </div><!-- article-wrap -->
+  </div><!-- large 8 -->
+
+
+
+
+ <div class="large-4 medium-4 columns">
+  <div class="hide-for-small">
+    <div id="sidebar" class="sidebar">
+          <div id="site-info" class="site-info">
+            
+                <div class="site-a-logo"><img src="asset/img/photo.jpg" /></div>
+            
+                <h1></h1>
+                <div class="site-des"></div>
+                <div class="social">
+
+
+
+
+
+
+
+
+
+
+<a target="_blank" class="email" href="mailto:669279048@qq.com" title="Email">Email</a>
+  <a target="_blank" class="rss" href="atom.xml" title="RSS">RSS</a>
+                
+              	 </div>
+          	</div>
+
+             
+
+              <div id="site-categories" class="side-item ">
+                <div class="side-header">
+                  <h2>Categories</h2>
+                </div>
+                <div class="side-content">
+
+      	<p class="cat-list">
+        
+            <a href="thoughts.html"><strong>thoughts</strong></a>
+        
+            <a href="java.html"><strong>java</strong></a>
+        
+            <a href="machine%20learning.html"><strong>machine learning</strong></a>
+        
+            <a href="network.html"><strong>network</strong></a>
+        
+            <a href="code%20race.html"><strong>code race</strong></a>
+        
+            <a href="database.html"><strong>database</strong></a>
+         
+        </p>
+
+
+                </div>
+              </div>
+
+              <div id="site-categories" class="side-item">
+                <div class="side-header">
+                  <h2>Recent Posts</h2>
+                </div>
+                <div class="side-content">
+                <ul class="posts-list">
+	      
+		      
+			      <li class="post">
+			        <a href="15705258754708.html">联邦学习和联合学习</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="15704371126805.html">OceanBase登顶TPC-C榜单</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="15605037286643.html">自研分布式关系型数据库</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="15605036887704.html">Oracle Enterprise Manager</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="15595701991747.html">Ubuntu系统Android环境搭建</a>
+			      </li>
+		     
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		   
+		  		</ul>
+                </div>
+              </div>
+        </div><!-- sidebar -->
+      </div><!-- hide for small -->
+</div><!-- large 4 -->
+
+</div><!-- row -->
+
+ <div class="page-bottom clearfix">
+  <div class="row">
+   <p class="copyright">Copyright &copy; 2015
+Powered by <a target="_blank" href="http://www.mweb.im">MWeb</a>,&nbsp; 
+Theme used <a target="_blank" href="http://github.com">GitHub CSS</a>.</p>
+  </div>
+</div>
+
+        </section>
+      </div>
+    </div>
+
+  
+    
+
+    <script src="asset/js/foundation.min.js"></script>
+    <script>
+      $(document).foundation();
+      function fixSidebarHeight(){
+        var w1 = $('.markdown-body').height();
+          var w2 = $('#sidebar').height();
+          if (w1 > w2) { $('#sidebar').height(w1); };
+      }
+      $(function(){
+        fixSidebarHeight();
+      })
+      $(window).load(function(){
+          fixSidebarHeight();
+      });
+     
+    </script>
+
+    
+
+
+
+  </body>
+</html>

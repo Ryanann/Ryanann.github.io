@@ -1,0 +1,373 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+    
+  联邦学习和联合学习 - 
+  
+  </title>
+  
+  
+  <link href="atom.xml" rel="alternate" title="" type="application/atom+xml">
+    <link rel="stylesheet" href="asset/css/foundation.min.css" />
+    <link rel="stylesheet" href="asset/css/docs.css" />
+    <script src="asset/js/vendor/modernizr.js"></script>
+    <script src="asset/js/vendor/jquery.js"></script>
+  <script src="asset/highlightjs/highlight.pack.js"></script>
+  <link href="asset/highlightjs/styles/github.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script>hljs.initHighlightingOnLoad();</script>
+<script type="text/javascript">
+  function before_search(){
+    var searchVal = 'site: ' + document.getElementById('search_input').value;
+    document.getElementById('search_q').value = searchVal;
+    return true;
+  }
+</script>
+  </head>
+  <body class="antialiased hide-extras">
+    
+    <div class="marketing off-canvas-wrap" data-offcanvas>
+      <div class="inner-wrap">
+
+
+<nav class="top-bar docs-bar hide-for-small" data-topbar>
+
+
+  <section class="top-bar-section">
+  <div class="row">
+      <div style="position: relative;width:100%;"><div style="position: absolute; width:100%;">
+        <ul id="main-menu" class="left">
+        
+        <li id=""><a target="self" href="index.html">Home</a></li>
+        
+        <li id=""><a target="_self" href="archives.html">Archives</a></li>
+        
+        </ul>
+
+        <ul class="right" id="search-wrap">
+          <li>
+<form target="_blank" onsubmit="return before_search();" action="https://google.com/search" method="get">
+    <input type="hidden" id="search_q" name="q" value="" />
+    <input tabindex="1" type="search" id="search_input"  placeholder="Search"/>
+</form>
+</li>
+          </ul>
+      </div></div>
+  </div>
+  </section>
+
+</nav>
+
+        <nav class="tab-bar show-for-small">
+  <a href="javascript:void(0)" class="left-off-canvas-toggle menu-icon">
+    <span> &nbsp; </span>
+  </a>
+</nav>
+
+<aside class="left-off-canvas-menu">
+      <ul class="off-canvas-list">
+        
+        <li><a target="self" href="index.html">Home</a></li>
+        
+        <li><a target="_self" href="archives.html">Archives</a></li>
+        
+
+    <li><label>Categories</label></li>
+
+        
+            <li><a href="thoughts.html">thoughts</a></li>
+        
+            <li><a href="java.html">java</a></li>
+        
+            <li><a href="machine%20learning.html">machine learning</a></li>
+        
+            <li><a href="network.html">network</a></li>
+        
+            <li><a href="code%20race.html">code race</a></li>
+        
+            <li><a href="database.html">database</a></li>
+         
+
+      </ul>
+    </aside>
+
+<a class="exit-off-canvas" href="#"></a>
+
+
+        <section id="main-content" role="main" class="scroll-container">
+        
+       
+
+ <script type="text/javascript">
+  $(function(){
+    $('#menu_item_index').addClass('is_active');
+  });
+</script>
+<div class="row">
+  <div class="large-8 medium-8 columns">
+      <div class="markdown-body article-wrap">
+       <div class="article">
+          
+          <h1>联邦学习和联合学习</h1>
+     
+        <div class="read-more clearfix">
+          <span class="date">2019/10/8</span>
+
+          <span>posted in&nbsp;</span> 
+          
+              <span class="posted-in"><a href='machine%20learning.html'>machine learning</a></span>
+           
+         
+          <span class="comments">
+            
+
+            
+          </span>
+
+        </div>
+      </div><!-- article -->
+
+      <div class="article-content">
+      <p>这几天在一些博客中看到了联邦学习和联合学习的内容，刚开始错以为是一个东西，现在及时改正对他们的概念进行简单总结。</p>
+
+<h2 id="toc_0">联邦学习（<a href="https://dl.acm.org/citation.cfm?id=3298981">Federated Machine Learning</a>）</h2>
+
+<p>联邦学习考虑的主要是<strong>加密和安全</strong>问题，在2016年由谷歌最先提出，原本用于解决安卓手机终端用户在本地更新模型的问题。目标是在保障大数据交换时的信息安全、保护终端数据和个人数据隐私、保证合法合规的前提下，在多参与方或多计算结点之间开展高效率的机器学习，所以其实可以算在<strong>分布式机器学习</strong>范畴内。</p>
+
+<p>比如说原来有一个保险公司，它对车险的定价基于一些很粗的维度，像驾驶员的年龄和车龄。为什么只能做这么粗的定价？因为它对用户的了解非常少。如果有一个码农张三年纪很轻，但开车却很小心，这一点它就无法了解，也无法进行个性化。</p>
+
+<p>现在它可以和一个移动互联网公司合作。运营商那边有张三的行为数据，但对保险领域并不了解。它们两边需要合作，但又不愿意把数据暴露给对方，以防失控和监管不严的问题。</p>
+
+<p>联邦学习恰恰就是在这可以帮忙，不交换数据，但可以在重叠的数据上建立一个更好的模型。针对上述例子可以使用<strong>纵向联邦学习</strong>方法。</p>
+
+<p><img src="media/15705258754708/15706027096018.jpg" alt=""/></p>
+
+<p>图中a表示互联网公司，有目标客户的部分数据，b表示保险公司，有目标客户的部分数据，同时也有label值。具体的工作流程如下:</p>
+
+<p>第一步：加密样本对齐。是在系统级做这件事，因此在企业感知层面不会暴露非交叉用户。</p>
+
+<p>第二步：对齐样本进行模型加密训练：</p>
+
+<ul>
+<li><p>step1：由第三方C向A和B发送公钥，用来加密需要传输的数据；</p></li>
+<li><p>step2：A和B分别计算和自己相关的特征中间结果，并加密交互，用来求得各自梯度和损失；</p></li>
+<li><p>step3：A和B分别计算各自加密后的梯度并添加掩码发送给C，同时B计算加密后的损失发送给C；</p></li>
+<li><p>step4：C解密梯度和损失后回传给A和B，A、B去除掩码并更新模型。</p></li>
+</ul>
+
+<h2 id="toc_1">联合特征学习（Joint Feature Learning）</h2>
+
+<p>联合学习属于<strong>多任务学习</strong>的范畴，是一种基于共享表示（shared representation）把多个相关的任务放在一起学习的一种机器学习方法。</p>
+
+<p>多任务学习与单任务学习的区别通过下面这张图就可以直观地表现出来。</p>
+
+<p><img src="media/15705258754708/15706043340773.jpg" alt=""/></p>
+
+<p>与单任务学习相比，多任务学习主要有以下优点:</p>
+
+<ul>
+<li><p><strong>隐式数据增加，降低过拟合风险</strong>。由于所有任务不同程度地存在噪声，当在某些任务 A 上训练模型时，我们的目标是为任务 A 学习一个很好的表征，理想情况下，这个表征能忽略与数据相关的噪声并具有良好的泛化性。由于不同的任务具有不同的噪声模式，所以同时学习两个任务的模型能够学习更一般的表征。只学习任务 A 有可能过拟合任务 A，而联合地学习 A 和 B 使模型能够通过平均噪声模式获得更好的表征。</p></li>
+<li><p><strong>注意力机制</strong>。如果一个任务非常嘈杂或数据量有限并且高维，模型可能难以区分相关与不相关的特征。MTL 可以帮助模型将注意力集中在重要的特征上，因为其它任务将为这些特征的相关性或不相关性提供额外的证据。</p></li>
+<li><p><strong>窃听</strong>。某特征G很容易被任务B学习，但是难以被另一个任务A学习。这可能是因为A以更复杂的方式与特征进行交互，或者因为其它特征阻碍了模型学习G的能力。通过MTL，我们可以允许模型“窃听”，即通过任务B学习G。</p></li>
+<li><p><strong>表征偏置</strong>。MTL任务偏好其它任务也偏好的表征，这造成模型偏差。这将有助于模型在将来泛化到新任务，因为在足够数量的训练任务上表现很好的假设空间也将很好地用于学习具有相同环境的新任务。</p></li>
+</ul>
+
+<p>许多论文和博客不对联合学习与多任务学习这两个概念进行特别区分，但是多任务学习的概念应该更宽泛一些，联合特征学习应该是多任务学习中一种比较常见的方式。</p>
+
+
+    
+
+      </div>
+
+      <div class="row">
+        <div class="large-6 columns">
+        <p class="text-left" style="padding:15px 0px;">
+      
+        </p>
+        </div>
+        <div class="large-6 columns">
+      <p class="text-right" style="padding:15px 0px;">
+      
+          <a  href="15704371126805.html" 
+          title="Next Post: OceanBase登顶TPC-C榜单">OceanBase登顶TPC-C榜单 &raquo;</a>
+      
+      </p>
+        </div>
+      </div>
+      <div class="comments-wrap">
+        <div class="share-comments">
+          
+
+          
+
+          
+        </div>
+      </div>
+    </div><!-- article-wrap -->
+  </div><!-- large 8 -->
+
+
+
+
+ <div class="large-4 medium-4 columns">
+  <div class="hide-for-small">
+    <div id="sidebar" class="sidebar">
+          <div id="site-info" class="site-info">
+            
+                <div class="site-a-logo"><img src="asset/img/photo.jpg" /></div>
+            
+                <h1></h1>
+                <div class="site-des"></div>
+                <div class="social">
+
+
+
+
+
+
+
+
+
+
+<a target="_blank" class="email" href="mailto:669279048@qq.com" title="Email">Email</a>
+  <a target="_blank" class="rss" href="atom.xml" title="RSS">RSS</a>
+                
+              	 </div>
+          	</div>
+
+             
+
+              <div id="site-categories" class="side-item ">
+                <div class="side-header">
+                  <h2>Categories</h2>
+                </div>
+                <div class="side-content">
+
+      	<p class="cat-list">
+        
+            <a href="thoughts.html"><strong>thoughts</strong></a>
+        
+            <a href="java.html"><strong>java</strong></a>
+        
+            <a href="machine%20learning.html"><strong>machine learning</strong></a>
+        
+            <a href="network.html"><strong>network</strong></a>
+        
+            <a href="code%20race.html"><strong>code race</strong></a>
+        
+            <a href="database.html"><strong>database</strong></a>
+         
+        </p>
+
+
+                </div>
+              </div>
+
+              <div id="site-categories" class="side-item">
+                <div class="side-header">
+                  <h2>Recent Posts</h2>
+                </div>
+                <div class="side-content">
+                <ul class="posts-list">
+	      
+		      
+			      <li class="post">
+			        <a href="15705258754708.html">联邦学习和联合学习</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="15704371126805.html">OceanBase登顶TPC-C榜单</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="15605037286643.html">自研分布式关系型数据库</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="15605036887704.html">Oracle Enterprise Manager</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="15595701991747.html">Ubuntu系统Android环境搭建</a>
+			      </li>
+		     
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		   
+		  		</ul>
+                </div>
+              </div>
+        </div><!-- sidebar -->
+      </div><!-- hide for small -->
+</div><!-- large 4 -->
+
+</div><!-- row -->
+
+ <div class="page-bottom clearfix">
+  <div class="row">
+   <p class="copyright">Copyright &copy; 2015
+Powered by <a target="_blank" href="http://www.mweb.im">MWeb</a>,&nbsp; 
+Theme used <a target="_blank" href="http://github.com">GitHub CSS</a>.</p>
+  </div>
+</div>
+
+        </section>
+      </div>
+    </div>
+
+  
+    
+
+    <script src="asset/js/foundation.min.js"></script>
+    <script>
+      $(document).foundation();
+      function fixSidebarHeight(){
+        var w1 = $('.markdown-body').height();
+          var w2 = $('#sidebar').height();
+          if (w1 > w2) { $('#sidebar').height(w1); };
+      }
+      $(function(){
+        fixSidebarHeight();
+      })
+      $(window).load(function(){
+          fixSidebarHeight();
+      });
+     
+    </script>
+
+    
+
+
+
+  </body>
+</html>

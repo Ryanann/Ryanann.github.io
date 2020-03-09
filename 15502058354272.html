@@ -1,0 +1,431 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+    
+  父类引用指向子类对象 - 
+  
+  </title>
+  
+  
+  <link href="atom.xml" rel="alternate" title="" type="application/atom+xml">
+    <link rel="stylesheet" href="asset/css/foundation.min.css" />
+    <link rel="stylesheet" href="asset/css/docs.css" />
+    <script src="asset/js/vendor/modernizr.js"></script>
+    <script src="asset/js/vendor/jquery.js"></script>
+  <script src="asset/highlightjs/highlight.pack.js"></script>
+  <link href="asset/highlightjs/styles/github.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script>hljs.initHighlightingOnLoad();</script>
+<script type="text/javascript">
+  function before_search(){
+    var searchVal = 'site: ' + document.getElementById('search_input').value;
+    document.getElementById('search_q').value = searchVal;
+    return true;
+  }
+</script>
+  </head>
+  <body class="antialiased hide-extras">
+    
+    <div class="marketing off-canvas-wrap" data-offcanvas>
+      <div class="inner-wrap">
+
+
+<nav class="top-bar docs-bar hide-for-small" data-topbar>
+
+
+  <section class="top-bar-section">
+  <div class="row">
+      <div style="position: relative;width:100%;"><div style="position: absolute; width:100%;">
+        <ul id="main-menu" class="left">
+        
+        <li id=""><a target="self" href="index.html">Home</a></li>
+        
+        <li id=""><a target="_self" href="archives.html">Archives</a></li>
+        
+        </ul>
+
+        <ul class="right" id="search-wrap">
+          <li>
+<form target="_blank" onsubmit="return before_search();" action="https://google.com/search" method="get">
+    <input type="hidden" id="search_q" name="q" value="" />
+    <input tabindex="1" type="search" id="search_input"  placeholder="Search"/>
+</form>
+</li>
+          </ul>
+      </div></div>
+  </div>
+  </section>
+
+</nav>
+
+        <nav class="tab-bar show-for-small">
+  <a href="javascript:void(0)" class="left-off-canvas-toggle menu-icon">
+    <span> &nbsp; </span>
+  </a>
+</nav>
+
+<aside class="left-off-canvas-menu">
+      <ul class="off-canvas-list">
+        
+        <li><a target="self" href="index.html">Home</a></li>
+        
+        <li><a target="_self" href="archives.html">Archives</a></li>
+        
+
+    <li><label>Categories</label></li>
+
+        
+            <li><a href="thoughts.html">thoughts</a></li>
+        
+            <li><a href="java.html">java</a></li>
+        
+            <li><a href="machine%20learning.html">machine learning</a></li>
+        
+            <li><a href="network.html">network</a></li>
+        
+            <li><a href="code%20race.html">code race</a></li>
+        
+            <li><a href="database.html">database</a></li>
+         
+
+      </ul>
+    </aside>
+
+<a class="exit-off-canvas" href="#"></a>
+
+
+        <section id="main-content" role="main" class="scroll-container">
+        
+       
+
+ <script type="text/javascript">
+  $(function(){
+    $('#menu_item_index').addClass('is_active');
+  });
+</script>
+<div class="row">
+  <div class="large-8 medium-8 columns">
+      <div class="markdown-body article-wrap">
+       <div class="article">
+          
+          <h1>父类引用指向子类对象</h1>
+     
+        <div class="read-more clearfix">
+          <span class="date">2019/2/15</span>
+
+          <span>posted in&nbsp;</span> 
+          
+              <span class="posted-in"><a href='java.html'>java</a></span>
+           
+         
+          <span class="comments">
+            
+
+            
+          </span>
+
+        </div>
+      </div><!-- article -->
+
+      <div class="article-content">
+      <p>父类引用指向子类对象的情况在一些设计模式（如装饰模式）中会使用到，那么在这个过程中，父类的成员变量、成员方法是否会被子类的相应成员覆盖呢？下面通过一个例子进行介绍。</p>
+
+<h2 id="toc_0">样例</h2>
+
+<pre><code class="language-text">public class Test {
+    public static void main(String [] args){
+        System.out.println(&quot;========Shape initiated with Circle========&quot;);
+        Shape shape = new Circle();
+        System.out.println(shape.name);
+        shape.printType();
+        shape.printName();
+
+        System.out.println(shape.getClass());
+        System.out.println(shape instanceof Shape);
+        System.out.println(shape instanceof Circle);
+
+        System.out.println(&quot;========Circle initiated with Circle========&quot;);
+        Circle circle = new Circle();
+        System.out.println(circle.name);
+        System.out.println(circle instanceof Shape);
+        circle.printName();
+    }
+}
+
+class Shape{
+    public String name = &quot;shape&quot;;
+
+    public Shape(){
+        System.out.println(&quot;shape constructor.&quot;);
+    }
+
+    public void printType(){
+        System.out.println(&quot;this is shape.&quot;);
+    }
+
+    public static void printName(){
+        System.out.println(&quot;shape.&quot;);
+    }
+}
+
+class Circle extends Shape{
+    public String name = &quot;circle&quot;;
+
+    public Circle(){
+        System.out.println(&quot;circle constructor.&quot;);
+    }
+
+    public void printType(){
+        System.out.println(&quot;this is circle.&quot;);
+    }
+
+    public static void printName(){
+        System.out.println(&quot;circle.&quot;);
+    }
+}
+</code></pre>
+
+<p>上述样例来源于网络，我对它做了一些简单的修改，程序运行后的输出如下：</p>
+
+<pre><code class="language-text">========Shape initiated with Circle========
+shape constructor.
+circle constructor.
+shape
+this is circle.
+shape.
+class Circle
+true
+true
+========Circle initiated with Circle========
+shape constructor.
+circle constructor.
+circle
+true
+circle.
+</code></pre>
+
+<h2 id="toc_1">分析</h2>
+
+<p>这里主要关注shape对象，从输出结果我们可以得出以下结论，同时我也对它们的原因进行了简要分析。</p>
+
+<h3 id="toc_2">1.覆盖非静态方法</h3>
+
+<p>在初始化shape对象的过程中，依然将其当作Circle类进行初始化，因此在调用非静态方法printType()的过程中，也会现在子类中寻找方法，如果子类没有定义才会到父类中进行搜索。这里Circle类定义了printType()所以就直接进行调用。</p>
+
+<h3 id="toc_3">2.不覆盖静态方法</h3>
+
+<p>静态方法从程序开始运行后就已经分配了内存，所有引用到该方法的对象（父类的对象也好子类的对象也好）所指向的都是同一块内存中的数据，也就是该静态方法。子类中如果定义了相同名称的静态方法，并不会重写，而应该是在内存中又分配了一块给子类的静态方法，没有重写这一说。</p>
+
+<h3 id="toc_4">3.不覆盖成员变量</h3>
+
+<p>父类中无论静态还是非静态成员变量都不会被子类覆盖，子类如果有名称相同的变量，会另外分配空间，这样在子类对象的内存空间中就会有两个变量。在调用相关变量时，会根据具体的上下文进行区分：</p>
+
+<ul>
+<li>在子类方法中使用或通过子类对象直接调用，则会使用子类的成员变量</li>
+<li>在父类方法中使用或通过父类对象直接调用，则会使用父类的成员变量</li>
+</ul>
+
+<blockquote>
+<p>最后插一句总结：父类引用指向子类对象，在初始化过程中，仍然按照子类对象进行初始化，其确切的类型仍为子类，只不过在具体使用时，套上了父类的面具，做了一些限制。</p>
+</blockquote>
+
+
+    
+
+      </div>
+
+      <div class="row">
+        <div class="large-6 columns">
+        <p class="text-left" style="padding:15px 0px;">
+      
+          <a href="15503914310559.html" 
+          title="Previous Post: 第四届阿里中间件性能挑战赛（初赛）">&laquo; 第四届阿里中间件性能挑战赛（初赛）</a>
+      
+        </p>
+        </div>
+        <div class="large-6 columns">
+      <p class="text-right" style="padding:15px 0px;">
+      
+          <a  href="15501407285724.html" 
+          title="Next Post: 根据IP地址进行数据传输的流程">根据IP地址进行数据传输的流程 &raquo;</a>
+      
+      </p>
+        </div>
+      </div>
+      <div class="comments-wrap">
+        <div class="share-comments">
+          
+
+          
+
+          
+        </div>
+      </div>
+    </div><!-- article-wrap -->
+  </div><!-- large 8 -->
+
+
+
+
+ <div class="large-4 medium-4 columns">
+  <div class="hide-for-small">
+    <div id="sidebar" class="sidebar">
+          <div id="site-info" class="site-info">
+            
+                <div class="site-a-logo"><img src="asset/img/photo.jpg" /></div>
+            
+                <h1></h1>
+                <div class="site-des"></div>
+                <div class="social">
+
+
+
+
+
+
+
+
+
+
+<a target="_blank" class="email" href="mailto:669279048@qq.com" title="Email">Email</a>
+  <a target="_blank" class="rss" href="atom.xml" title="RSS">RSS</a>
+                
+              	 </div>
+          	</div>
+
+             
+
+              <div id="site-categories" class="side-item ">
+                <div class="side-header">
+                  <h2>Categories</h2>
+                </div>
+                <div class="side-content">
+
+      	<p class="cat-list">
+        
+            <a href="thoughts.html"><strong>thoughts</strong></a>
+        
+            <a href="java.html"><strong>java</strong></a>
+        
+            <a href="machine%20learning.html"><strong>machine learning</strong></a>
+        
+            <a href="network.html"><strong>network</strong></a>
+        
+            <a href="code%20race.html"><strong>code race</strong></a>
+        
+            <a href="database.html"><strong>database</strong></a>
+         
+        </p>
+
+
+                </div>
+              </div>
+
+              <div id="site-categories" class="side-item">
+                <div class="side-header">
+                  <h2>Recent Posts</h2>
+                </div>
+                <div class="side-content">
+                <ul class="posts-list">
+	      
+		      
+			      <li class="post">
+			        <a href="15705258754708.html">联邦学习和联合学习</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="15704371126805.html">OceanBase登顶TPC-C榜单</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="15605037286643.html">自研分布式关系型数据库</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="15605036887704.html">Oracle Enterprise Manager</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="15595701991747.html">Ubuntu系统Android环境搭建</a>
+			      </li>
+		     
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		   
+		  		</ul>
+                </div>
+              </div>
+        </div><!-- sidebar -->
+      </div><!-- hide for small -->
+</div><!-- large 4 -->
+
+</div><!-- row -->
+
+ <div class="page-bottom clearfix">
+  <div class="row">
+   <p class="copyright">Copyright &copy; 2015
+Powered by <a target="_blank" href="http://www.mweb.im">MWeb</a>,&nbsp; 
+Theme used <a target="_blank" href="http://github.com">GitHub CSS</a>.</p>
+  </div>
+</div>
+
+        </section>
+      </div>
+    </div>
+
+  
+    
+
+    <script src="asset/js/foundation.min.js"></script>
+    <script>
+      $(document).foundation();
+      function fixSidebarHeight(){
+        var w1 = $('.markdown-body').height();
+          var w2 = $('#sidebar').height();
+          if (w1 > w2) { $('#sidebar').height(w1); };
+      }
+      $(function(){
+        fixSidebarHeight();
+      })
+      $(window).load(function(){
+          fixSidebarHeight();
+      });
+     
+    </script>
+
+    
+
+
+
+  </body>
+</html>

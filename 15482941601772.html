@@ -1,0 +1,409 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+    
+  JVM垃圾收集器与内存分配策略（一） - 
+  
+  </title>
+  
+  
+  <link href="atom.xml" rel="alternate" title="" type="application/atom+xml">
+    <link rel="stylesheet" href="asset/css/foundation.min.css" />
+    <link rel="stylesheet" href="asset/css/docs.css" />
+    <script src="asset/js/vendor/modernizr.js"></script>
+    <script src="asset/js/vendor/jquery.js"></script>
+  <script src="asset/highlightjs/highlight.pack.js"></script>
+  <link href="asset/highlightjs/styles/github.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script>hljs.initHighlightingOnLoad();</script>
+<script type="text/javascript">
+  function before_search(){
+    var searchVal = 'site: ' + document.getElementById('search_input').value;
+    document.getElementById('search_q').value = searchVal;
+    return true;
+  }
+</script>
+  </head>
+  <body class="antialiased hide-extras">
+    
+    <div class="marketing off-canvas-wrap" data-offcanvas>
+      <div class="inner-wrap">
+
+
+<nav class="top-bar docs-bar hide-for-small" data-topbar>
+
+
+  <section class="top-bar-section">
+  <div class="row">
+      <div style="position: relative;width:100%;"><div style="position: absolute; width:100%;">
+        <ul id="main-menu" class="left">
+        
+        <li id=""><a target="self" href="index.html">Home</a></li>
+        
+        <li id=""><a target="_self" href="archives.html">Archives</a></li>
+        
+        </ul>
+
+        <ul class="right" id="search-wrap">
+          <li>
+<form target="_blank" onsubmit="return before_search();" action="https://google.com/search" method="get">
+    <input type="hidden" id="search_q" name="q" value="" />
+    <input tabindex="1" type="search" id="search_input"  placeholder="Search"/>
+</form>
+</li>
+          </ul>
+      </div></div>
+  </div>
+  </section>
+
+</nav>
+
+        <nav class="tab-bar show-for-small">
+  <a href="javascript:void(0)" class="left-off-canvas-toggle menu-icon">
+    <span> &nbsp; </span>
+  </a>
+</nav>
+
+<aside class="left-off-canvas-menu">
+      <ul class="off-canvas-list">
+        
+        <li><a target="self" href="index.html">Home</a></li>
+        
+        <li><a target="_self" href="archives.html">Archives</a></li>
+        
+
+    <li><label>Categories</label></li>
+
+        
+            <li><a href="thoughts.html">thoughts</a></li>
+        
+            <li><a href="java.html">java</a></li>
+        
+            <li><a href="machine%20learning.html">machine learning</a></li>
+        
+            <li><a href="network.html">network</a></li>
+        
+            <li><a href="code%20race.html">code race</a></li>
+        
+            <li><a href="database.html">database</a></li>
+         
+
+      </ul>
+    </aside>
+
+<a class="exit-off-canvas" href="#"></a>
+
+
+        <section id="main-content" role="main" class="scroll-container">
+        
+       
+
+ <script type="text/javascript">
+  $(function(){
+    $('#menu_item_index').addClass('is_active');
+  });
+</script>
+<div class="row">
+  <div class="large-8 medium-8 columns">
+      <div class="markdown-body article-wrap">
+       <div class="article">
+          
+          <h1>JVM垃圾收集器与内存分配策略（一）</h1>
+     
+        <div class="read-more clearfix">
+          <span class="date">2019/1/24</span>
+
+          <span>posted in&nbsp;</span> 
+          
+              <span class="posted-in"><a href='java.html'>java</a></span>
+           
+         
+          <span class="comments">
+            
+
+            
+          </span>
+
+        </div>
+      </div><!-- article -->
+
+      <div class="article-content">
+      <p>内存动态分配和垃圾收集技术是Java与C++之间的一个重要差异，正如书中的比喻，这是一堵“高墙”，墙外面的人想进去，墙里面的人想出来。</p>
+
+<h2 id="toc_0">判定对象是否需要回收</h2>
+
+<h3 id="toc_1">1.引用计数算法</h3>
+
+<p>给每个对象添加一个引用计数器，每当有一个地方引用它，计数器值加1；当引用失效时，计数器值减1；计数器值为0的对象就是需要被回收的对象。</p>
+
+<p>引用计数算法(Reference Counting)实现简单，判定效率高，在大部分场景下都是一个不错的算法，但是主流的Java虚拟机都没有采用该算法来管理内存，主要原因在于它很难解决对象之间相互循环引用的问题。下面给出一个简单的事例，当执行System.gc()方法时，objA和objB两个对象不能被回收。</p>
+
+<pre><code class="language-text">public class ReferenceCountingGC {
+    public Object instance = null;
+    private static final int _1MB = 1024 * 1024;
+    
+    // 该属性方便在GC日志中看清对象是否被回收
+    private byte[] bigSize = new byte[2 * _1MB];
+    
+    public static void testGC(){
+        ReferenceCountingGC objA = new ReferenceCountingGC();
+        ReferenceCountingGC objB = new ReferenceCountingGC();
+        objA.instance = objB;
+        objB.instance = objA;
+        
+        objA = null;
+        objB = null;
+        
+        System.gc();
+    }
+}
+</code></pre>
+
+<h3 id="toc_2">2.可达性分析算法</h3>
+
+<p>主流Java虚拟机为了解决上述循环引用问题，通常采用可达性分析算法(Reachability Analysis)来判定对象是否存活。</p>
+
+<p>可达性分析可以算是数据流分析的一种，数据流分析的具体并不陌生，关键是分析起始点的设定。JVM的可达性分析算法通过一系列的称为“GC Roots”的对象作为起始点，从这些节点开始向下搜索，搜索所走过的路径称为引用链(Reference Chain)，当一个对象到GC Roots没有任何引用链相连时，就证明此对象是不可用的。如图中的object5、object6、object7因为不与GC Root相连，所以将被回收。<br/>
+ <img src="media/15482941601772/15483301988899.jpg" alt=""/></p>
+
+<p>在Java语言中，GC Roots对象包括下面几种：</p>
+
+<ul>
+<li>虚拟机栈中引用的对象。</li>
+<li>方法区中类静态属性引用的对象（类中static修饰的属性）。</li>
+<li>方法区中常量引用的对象（类中static final修饰的属性）。</li>
+<li>Native方法引用的对象(通过C++实现的代理程序，JVM通过调用代理程序来实际执行其中的Native方法)。</li>
+</ul>
+
+<p>在JDK1.2之后，Java对引用的概念进行了扩充，将引用分为强引用、软引用、弱引用和虚引用4种。在不同的场景下，可能会对不同程度的引用进行回收。</p>
+
+<h2 id="toc_3">垃圾收集算法</h2>
+
+<h3 id="toc_4">1.标记-清除算法</h3>
+
+<p>分为标记和清除两个步骤，采用上述方法对待回收内存进行标记后，统一在清除阶段进行清除。该算法主要有两个不足：</p>
+
+<ul>
+<li>效率问题，标记和清除两个过程的效率都不高。</li>
+<li>控件问题，标记清除之后会产生大量不连续的内存碎片，可能导致后续要分配较大对象时，找不到连续内存空间。
+<img src="media/15482941601772/15483329457430.jpg" alt=""/></li>
+</ul>
+
+<h3 id="toc_5">2.标记-整理算法</h3>
+
+<p>该算法通常对老年代对象进行使用，可以看作是对标记-清除算法的改进。两者标记过程一致，但标记-整理算法不是直接对可回收对象进行清理，而是让所有存活的对象都向一端移动，然后直接清理掉端边界以外的内存。该算法解决了刚才提到的空间问题。</p>
+
+<p><img src="media/15482941601772/15483329717825.jpg" alt=""/></p>
+
+<h3 id="toc_6">3.复制算法</h3>
+
+<p>为了解决标记算法存在的效率问题，复制算法诞生了。它将内存划分为大小相等的两块，每次都只使用其中的一块，当某一块用完，就将还存活的对象复制到另外一块上，然后再把已使用过的内存空间一次清理掉。该算法运行高效，且不会出现内存中大量碎片的情况。但是这种算法的代价是将内存缩小为原来的一半，太过浪费。</p>
+
+<p>好在对于新生代对象，研究表明其中的对象98%是“朝生夕死”的，所以可以将内存划分为一块较大的Eden空间和两块较小的Survivor空间，每次使用Eden和一块Survivor。回收时将Eden和其中一块Survivor中的对象复制到另一块Survivor中。HotSpot虚拟机默认Eden和Survivor的大小比例为8:1，因此只有10%的内存会被浪费。如果另一块Survivor没有足够的空间存放存活对象，这些对象将直接通过分配担保机制进入老年代。</p>
+
+<p><img src="media/15482941601772/15483330068162.jpg" alt=""/></p>
+
+<h3 id="toc_7">4.分代收集算法</h3>
+
+<p>这种算法根据对象存活周期的不同将内存划分为几块，对不同区块采用不同的收集算法。一般把Java堆分为新生代和老年代，新生代中每次垃圾收集时都发现有大批对象死去，就选用复制算法，只需要复制少量存货对象就可以。而老年代中对象存活率高、没有额外空间对它进行分配担保，就必须使用标记-清理或者标记-整理算法来进行回收。</p>
+
+
+    
+
+      </div>
+
+      <div class="row">
+        <div class="large-6 columns">
+        <p class="text-left" style="padding:15px 0px;">
+      
+          <a href="15486790239285.html" 
+          title="Previous Post: JVM垃圾收集器与内存分配策略（二）">&laquo; JVM垃圾收集器与内存分配策略（二）</a>
+      
+        </p>
+        </div>
+        <div class="large-6 columns">
+      <p class="text-right" style="padding:15px 0px;">
+      
+          <a  href="15482940079916.html" 
+          title="Next Post: 外部 Markdown 文档：">外部 Markdown 文档： &raquo;</a>
+      
+      </p>
+        </div>
+      </div>
+      <div class="comments-wrap">
+        <div class="share-comments">
+          
+
+          
+
+          
+        </div>
+      </div>
+    </div><!-- article-wrap -->
+  </div><!-- large 8 -->
+
+
+
+
+ <div class="large-4 medium-4 columns">
+  <div class="hide-for-small">
+    <div id="sidebar" class="sidebar">
+          <div id="site-info" class="site-info">
+            
+                <div class="site-a-logo"><img src="asset/img/photo.jpg" /></div>
+            
+                <h1></h1>
+                <div class="site-des"></div>
+                <div class="social">
+
+
+
+
+
+
+
+
+
+
+<a target="_blank" class="email" href="mailto:669279048@qq.com" title="Email">Email</a>
+  <a target="_blank" class="rss" href="atom.xml" title="RSS">RSS</a>
+                
+              	 </div>
+          	</div>
+
+             
+
+              <div id="site-categories" class="side-item ">
+                <div class="side-header">
+                  <h2>Categories</h2>
+                </div>
+                <div class="side-content">
+
+      	<p class="cat-list">
+        
+            <a href="thoughts.html"><strong>thoughts</strong></a>
+        
+            <a href="java.html"><strong>java</strong></a>
+        
+            <a href="machine%20learning.html"><strong>machine learning</strong></a>
+        
+            <a href="network.html"><strong>network</strong></a>
+        
+            <a href="code%20race.html"><strong>code race</strong></a>
+        
+            <a href="database.html"><strong>database</strong></a>
+         
+        </p>
+
+
+                </div>
+              </div>
+
+              <div id="site-categories" class="side-item">
+                <div class="side-header">
+                  <h2>Recent Posts</h2>
+                </div>
+                <div class="side-content">
+                <ul class="posts-list">
+	      
+		      
+			      <li class="post">
+			        <a href="15705258754708.html">联邦学习和联合学习</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="15704371126805.html">OceanBase登顶TPC-C榜单</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="15605037286643.html">自研分布式关系型数据库</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="15605036887704.html">Oracle Enterprise Manager</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="15595701991747.html">Ubuntu系统Android环境搭建</a>
+			      </li>
+		     
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		   
+		  		</ul>
+                </div>
+              </div>
+        </div><!-- sidebar -->
+      </div><!-- hide for small -->
+</div><!-- large 4 -->
+
+</div><!-- row -->
+
+ <div class="page-bottom clearfix">
+  <div class="row">
+   <p class="copyright">Copyright &copy; 2015
+Powered by <a target="_blank" href="http://www.mweb.im">MWeb</a>,&nbsp; 
+Theme used <a target="_blank" href="http://github.com">GitHub CSS</a>.</p>
+  </div>
+</div>
+
+        </section>
+      </div>
+    </div>
+
+  
+    
+
+    <script src="asset/js/foundation.min.js"></script>
+    <script>
+      $(document).foundation();
+      function fixSidebarHeight(){
+        var w1 = $('.markdown-body').height();
+          var w2 = $('#sidebar').height();
+          if (w1 > w2) { $('#sidebar').height(w1); };
+      }
+      $(function(){
+        fixSidebarHeight();
+      })
+      $(window).load(function(){
+          fixSidebarHeight();
+      });
+     
+    </script>
+
+    
+
+
+
+  </body>
+</html>

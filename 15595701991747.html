@@ -1,0 +1,387 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+    
+  Ubuntu系统Android环境搭建 - 
+  
+  </title>
+  
+  
+  <link href="atom.xml" rel="alternate" title="" type="application/atom+xml">
+    <link rel="stylesheet" href="asset/css/foundation.min.css" />
+    <link rel="stylesheet" href="asset/css/docs.css" />
+    <script src="asset/js/vendor/modernizr.js"></script>
+    <script src="asset/js/vendor/jquery.js"></script>
+  <script src="asset/highlightjs/highlight.pack.js"></script>
+  <link href="asset/highlightjs/styles/github.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script>hljs.initHighlightingOnLoad();</script>
+<script type="text/javascript">
+  function before_search(){
+    var searchVal = 'site: ' + document.getElementById('search_input').value;
+    document.getElementById('search_q').value = searchVal;
+    return true;
+  }
+</script>
+  </head>
+  <body class="antialiased hide-extras">
+    
+    <div class="marketing off-canvas-wrap" data-offcanvas>
+      <div class="inner-wrap">
+
+
+<nav class="top-bar docs-bar hide-for-small" data-topbar>
+
+
+  <section class="top-bar-section">
+  <div class="row">
+      <div style="position: relative;width:100%;"><div style="position: absolute; width:100%;">
+        <ul id="main-menu" class="left">
+        
+        <li id=""><a target="self" href="index.html">Home</a></li>
+        
+        <li id=""><a target="_self" href="archives.html">Archives</a></li>
+        
+        </ul>
+
+        <ul class="right" id="search-wrap">
+          <li>
+<form target="_blank" onsubmit="return before_search();" action="https://google.com/search" method="get">
+    <input type="hidden" id="search_q" name="q" value="" />
+    <input tabindex="1" type="search" id="search_input"  placeholder="Search"/>
+</form>
+</li>
+          </ul>
+      </div></div>
+  </div>
+  </section>
+
+</nav>
+
+        <nav class="tab-bar show-for-small">
+  <a href="javascript:void(0)" class="left-off-canvas-toggle menu-icon">
+    <span> &nbsp; </span>
+  </a>
+</nav>
+
+<aside class="left-off-canvas-menu">
+      <ul class="off-canvas-list">
+        
+        <li><a target="self" href="index.html">Home</a></li>
+        
+        <li><a target="_self" href="archives.html">Archives</a></li>
+        
+
+    <li><label>Categories</label></li>
+
+        
+            <li><a href="thoughts.html">thoughts</a></li>
+        
+            <li><a href="java.html">java</a></li>
+        
+            <li><a href="machine%20learning.html">machine learning</a></li>
+        
+            <li><a href="network.html">network</a></li>
+        
+            <li><a href="code%20race.html">code race</a></li>
+        
+            <li><a href="database.html">database</a></li>
+         
+
+      </ul>
+    </aside>
+
+<a class="exit-off-canvas" href="#"></a>
+
+
+        <section id="main-content" role="main" class="scroll-container">
+        
+       
+
+ <script type="text/javascript">
+  $(function(){
+    $('#menu_item_index').addClass('is_active');
+  });
+</script>
+<div class="row">
+  <div class="large-8 medium-8 columns">
+      <div class="markdown-body article-wrap">
+       <div class="article">
+          
+          <h1>Ubuntu系统Android环境搭建</h1>
+     
+        <div class="read-more clearfix">
+          <span class="date">2019/6/3</span>
+
+          <span>posted in&nbsp;</span> 
+          
+              <span class="posted-in"><a href='network.html'>network</a></span>
+           
+         
+          <span class="comments">
+            
+
+            
+          </span>
+
+        </div>
+      </div><!-- article -->
+
+      <div class="article-content">
+      <p>这几天给实验室的台式机搭建了Android环境，主要涉及到双系统安装、科学上网等内容，期间遇到了一些问题，发现网上的博客介绍得并不清楚，在这里记录一下。</p>
+
+<h2 id="toc_0">Windows10、Ubuntu双系统安装</h2>
+
+<p>我是在Windows10的基础上再装Ubuntu系统，然后做一个启动引导完成双系统的安装，大体分以下几个步骤：</p>
+
+<ol>
+<li>分割磁盘、Windows10相关的一些系统设置</li>
+<li>下载Ubuntu镜像，使用Rufus制作启动U盘</li>
+<li>从U盘启动，安装Ubuntu（主要涉及到磁盘分区）</li>
+<li>在Windows10系统中使用EasyBCD添加新的启动项</li>
+</ol>
+
+<p>这一部分内容网上的博客比较多，内容也比较详细，我主要参考的是这一篇文章：<a href="https://blog.csdn.net/flyyufenfei/article/details/79187656">Windows + Ubuntu 16.04 双系统安装详细教程<br/>
+</a></p>
+
+<h3 id="toc_1">Ubuntu无法联网</h3>
+
+<p>安装好Ubuntu系统后，遇到的一个主要问题就是无法联网。主要表现为插上网线后系统提示有线连接无法连接，使用ifconfig查看网卡信息发现获取不到ip地址。但是Windows10系统确能正常上网，因此排除是硬件问题。</p>
+
+<p>后来发现问题出在Windows系统上而不是被我反复折腾的Ubuntu系统上。由于Windows的设备管理问题，系统关闭之后网卡可能仍然处于通电状态，于是Ubuntu系统就不能正常使用网卡，也就无法联网了。</p>
+
+<p>解决办法有两种：</p>
+
+<ol>
+<li><p>在<strong>&quot;我的电脑&quot;-&gt;&quot;管理&quot;-&gt;&quot;设备管理器&quot;-&gt;&quot;网络适配器&quot;-&gt;&quot;对应的网卡&quot;-&gt;&quot;属性&quot;-&gt;&quot;电源管理&quot;</strong>里关闭<strong>网络唤醒功能</strong>。</p></li>
+<li><p>直接在<strong>网络控制中心</strong>中禁用以太网，下次使用Windows系统时需要重新打开。</p></li>
+</ol>
+
+<blockquote>
+<p>网络唤醒：Wake-on-LAN简称WOL或WoL，它的功效在于让已经进入休眠状态或关机状态的计算机，透过局域网（多半为以太网）的另一端对其发令，使其从休眠状态唤醒、恢复成运作状态，或从关机状态转成引导状态。（摘自<a href="https://baike.baidu.com/item/%E7%BD%91%E7%BB%9C%E5%94%A4%E9%86%92">百度百科</a>）</p>
+</blockquote>
+
+<h2 id="toc_2">科学上网</h2>
+
+<p>众所周知，想要进行Android应用的开发和测试，科学上网是必不可少的。Android Studio在构建项目的过程中会经常从Google的服务器拉取相关依赖，一些大的项目的依赖比较多，因此对网速要求也比较高。</p>
+
+<p>关于VPS服务器的搭建这里不作介绍，主要介绍Ubuntu client端的配置。</p>
+
+<p>过去Shadowsocks只支持socks5协议，现在又增加了对http(s)协议的支持。推荐选择http(s)协议，因为使用这种协议后，就不用对浏览器进行额外配置（Chrome需要安装SwitchyOmega插件）。</p>
+
+<p>完成Shadowsocks相关内容的配置之后，还需要对Ubuntu系统进行配置，这一点相比macOS、Windows等系统更加繁琐一些，如果使用的是http协议，那么只需要在<strong>&quot;系统设置&quot;-&gt;&quot;网络&quot;-&gt;&quot;网络代理&quot;</strong>中按照下图进行配置即可：<br/>
+<img src="media/15595701991747/network_proxy.png" alt="network_proxy"/></p>
+
+<p>此时通过浏览就能访问到一些特殊的网站了。对于Android Studio，在<strong>&quot;File&quot;-&gt;&quot;Settings&quot;-&gt;&quot;Appearance&amp;Behavior&quot;-&gt;&quot;System Settings&quot;-&gt;&quot;HTTP Proxy&quot;</strong>中进行如下配置即可：<br/>
+<img src="media/15595701991747/AS_HTTP_Proxy.png" alt="AS_HTTP_Proxy"/></p>
+
+<p>如果Shadowsocks采用socks协议的话也类似，只要把这两部分的配置也同样改成socks协议。只不过需要对浏览器额外安装插件，将http协议转换成socks协议然后再交给Shadowsocks进行转发。</p>
+
+<h3 id="toc_3">Shadowsocks、系统代理配置、Android Studio代理配置三者关系</h3>
+
+<ul>
+<li><p>Shadowsocks：仅在相应端口架设基于http(s)或socks5协议的代理服务。</p></li>
+<li><p>Ubuntu系统代理：如果启用该选项，那么软件会在浏览器等软件的设置里添加相应的代理配置。这样，支持这种代理设置的软件就会自动遵循设置，将相关协议的数据导向Shadowsocks服务端口。事实上，支持系统代理的软件非常少，一般来说只被浏览器普遍支持。</p></li>
+<li><p>Android Studio等软件通过自行定义代理，自动将数据导向Shadowsocks服务端口，这种情况下不依赖系统代理设置。</p></li>
+</ul>
+
+
+    
+
+      </div>
+
+      <div class="row">
+        <div class="large-6 columns">
+        <p class="text-left" style="padding:15px 0px;">
+      
+          <a href="15605036887704.html" 
+          title="Previous Post: Oracle Enterprise Manager">&laquo; Oracle Enterprise Manager</a>
+      
+        </p>
+        </div>
+        <div class="large-6 columns">
+      <p class="text-right" style="padding:15px 0px;">
+      
+          <a  href="15558113568363.html" 
+          title="Next Post: Java内存模型">Java内存模型 &raquo;</a>
+      
+      </p>
+        </div>
+      </div>
+      <div class="comments-wrap">
+        <div class="share-comments">
+          
+
+          
+
+          
+        </div>
+      </div>
+    </div><!-- article-wrap -->
+  </div><!-- large 8 -->
+
+
+
+
+ <div class="large-4 medium-4 columns">
+  <div class="hide-for-small">
+    <div id="sidebar" class="sidebar">
+          <div id="site-info" class="site-info">
+            
+                <div class="site-a-logo"><img src="asset/img/photo.jpg" /></div>
+            
+                <h1></h1>
+                <div class="site-des"></div>
+                <div class="social">
+
+
+
+
+
+
+
+
+
+
+<a target="_blank" class="email" href="mailto:669279048@qq.com" title="Email">Email</a>
+  <a target="_blank" class="rss" href="atom.xml" title="RSS">RSS</a>
+                
+              	 </div>
+          	</div>
+
+             
+
+              <div id="site-categories" class="side-item ">
+                <div class="side-header">
+                  <h2>Categories</h2>
+                </div>
+                <div class="side-content">
+
+      	<p class="cat-list">
+        
+            <a href="thoughts.html"><strong>thoughts</strong></a>
+        
+            <a href="java.html"><strong>java</strong></a>
+        
+            <a href="machine%20learning.html"><strong>machine learning</strong></a>
+        
+            <a href="network.html"><strong>network</strong></a>
+        
+            <a href="code%20race.html"><strong>code race</strong></a>
+        
+            <a href="database.html"><strong>database</strong></a>
+         
+        </p>
+
+
+                </div>
+              </div>
+
+              <div id="site-categories" class="side-item">
+                <div class="side-header">
+                  <h2>Recent Posts</h2>
+                </div>
+                <div class="side-content">
+                <ul class="posts-list">
+	      
+		      
+			      <li class="post">
+			        <a href="15705258754708.html">联邦学习和联合学习</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="15704371126805.html">OceanBase登顶TPC-C榜单</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="15605037286643.html">自研分布式关系型数据库</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="15605036887704.html">Oracle Enterprise Manager</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="15595701991747.html">Ubuntu系统Android环境搭建</a>
+			      </li>
+		     
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		   
+		  		</ul>
+                </div>
+              </div>
+        </div><!-- sidebar -->
+      </div><!-- hide for small -->
+</div><!-- large 4 -->
+
+</div><!-- row -->
+
+ <div class="page-bottom clearfix">
+  <div class="row">
+   <p class="copyright">Copyright &copy; 2015
+Powered by <a target="_blank" href="http://www.mweb.im">MWeb</a>,&nbsp; 
+Theme used <a target="_blank" href="http://github.com">GitHub CSS</a>.</p>
+  </div>
+</div>
+
+        </section>
+      </div>
+    </div>
+
+  
+    
+
+    <script src="asset/js/foundation.min.js"></script>
+    <script>
+      $(document).foundation();
+      function fixSidebarHeight(){
+        var w1 = $('.markdown-body').height();
+          var w2 = $('#sidebar').height();
+          if (w1 > w2) { $('#sidebar').height(w1); };
+      }
+      $(function(){
+        fixSidebarHeight();
+      })
+      $(window).load(function(){
+          fixSidebarHeight();
+      });
+     
+    </script>
+
+    
+
+
+
+  </body>
+</html>
