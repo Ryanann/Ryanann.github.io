@@ -136,9 +136,24 @@
 
 <p>超分辨率（Super Resolution）任务的目标就是将输入的低分辨率的图像转换为高分辨率的图像。可以理解为一种基于较少像素点，填充较多像素点的方式。图像超分辨率与图像去噪、图像去模糊等一脉相承，图像去噪关注在图像尺寸不变的情况下，将被“污染”的像素替换为正确的像素，有些工具在超分辨率的同时也可以达到降噪的目的。</p>
 
-<h2 id="toc_1">SRCNN结构及原理</h2>
+<h2 id="toc_1">Bicubic插值</h2>
 
-<p><img src="media/15837602816287/SRCNN.png" alt="SRCNN"/></p>
+<p>在通过CNN进行超分辨率之前，首先需要使用Bicubic插值将图像扩大。这里简单对Bicubic插值进行介绍。</p>
+
+<p>对待插值的像素点(x‘,y’)（x‘和y’可以为浮点数），首先找到其在原图中最接近的坐标点(x,y)，然后取原图中(x,y)附近的4x4邻域点(xi,yj), i,j = 0,1,2,3。按如下公式进行插值计算：</p>
+
+<p><img src="media/15837602816287/15840121496214.jpg" alt="" class="mw_img_center" style="width:300px;display: block; clear:both; margin: 0 auto;"/></p>
+
+<p>其中W(x, y)即为Bicubic函数：<br/>
+<img src="media/15837602816287/15840122261462.jpg" alt="" class="mw_img_center" style="width:300px;display: block; clear:both; margin: 0 auto;"/></p>
+
+<p>当a取-1时该函数图像如图所示，此时其最接近的函数是y = sin(x<em>PI)/(x</em>PI)。</p>
+
+<p><img src="media/15837602816287/15840127025253.jpg" alt="" class="mw_img_center" style="width:500px;display: block; clear:both; margin: 0 auto;"/></p>
+
+<h2 id="toc_2">SRCNN结构及原理</h2>
+
+<p><img src="media/15837602816287/SRCNN.png" alt="SRCNN " class="mw_img_center" style="display: block; clear:both; margin: 0 auto;"/></p>
 
 <p>SRCNN的结构如图所示，主要由三个卷积层构成。</p>
 
@@ -166,7 +181,14 @@
 <li><p>作用： 重构图像：等于是个反卷积的过程，将n2的特征矩阵还原为超分辨图像</p></li>
 </ul>
 
-<h2 id="toc_2">实现及实验</h2>
+<h2 id="toc_3">实现</h2>
+
+<p>代码实现主要参考了以下GitHub项目：</p>
+
+<ul>
+<li><a href="https://github.com/MarkPrecursor/SRCNN-keras">https://github.com/MarkPrecursor/SRCNN-keras</a></li>
+<li><a href="https://github.com/tegg89/SRCNN-Tensorflow">https://github.com/tegg89/SRCNN-Tensorflow</a></li>
+</ul>
 
 
     
