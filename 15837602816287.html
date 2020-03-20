@@ -183,12 +183,41 @@
 
 <h2 id="toc_3">实现</h2>
 
-<p>代码实现主要参考了以下GitHub项目：</p>
+<p>代码实现可以参考该GitHub项目，该项目主要基于open cv和keras完成图像处理和神经网络搭建工作，代码中对关键代码进行了注释说明。其中主要有两个较重要的文件夹：prepare_data.py 和main.py。</p>
 
-<ul>
-<li><a href="https://github.com/MarkPrecursor/SRCNN-keras">https://github.com/MarkPrecursor/SRCNN-keras</a></li>
-<li><a href="https://github.com/tegg89/SRCNN-Tensorflow">https://github.com/tegg89/SRCNN-Tensorflow</a></li>
-</ul>
+<h3 id="toc_4">数据预处理(prepare_data.py)</h3>
+
+<p>数据预处理部分通过对已有的高分辨率图像文件进行处理生成训练数据和测试数据集。具体地，该项目通过两次Bicubic插值得到初试数据：</p>
+
+<ol>
+<li>使用Bicubic插值将已有的图像分辨率缩小n倍；</li>
+<li>对缩小后的图像再次使用Bicubic插值，恢复到原始大小。</li>
+</ol>
+
+<p>通过上述操作后，就可以得到低分辨率图像作为模型的输入，而原始的高分辨率图像作为模型处理的目标标签。</p>
+
+<p>其中，为了提升模型效果，该部分对已有样本进行了数据增强操作。具体地，项目通过将已有图像裁剪为多个固定大小的子图，增加了样本数量。通过<em>patch_size</em>和<em>label_size</em>两个参数可以设定子图的大小。</p>
+
+<p>其中<em>patch_size</em>用于设定输入图片的大小，<em>label_size</em>用于设定标签图片的大小。根据该项目中设定的各卷基层的padding策略，最终输出文件的大小小于输入文件，两参数满足以下关系：</p>
+
+<p><em>patch_size</em> - <em>label_size</em> = 12</p>
+
+<h3 id="toc_5">训练和预测(main.py)</h3>
+
+<p>模型训练阶段基于上述预处理步骤，通过读取预处理后的样本数据和相应标签，对模型进行训练。其中SRCNN模型通过keras进行搭建，具体代码如下：</p>
+
+<pre><code class="language-text">SRCNN = Sequential()
+SRCNN.add(Conv2D(nb_filter=128, nb_row=9, nb_col=9, init=&#39;glorot_uniform&#39;,
+                     activation=&#39;relu&#39;, border_mode=&#39;valid&#39;, bias=True, input_shape=(None, None, 1)))
+SRCNN.add(Conv2D(nb_filter=64, nb_row=3, nb_col=3, init=&#39;glorot_uniform&#39;,
+                     activation=&#39;relu&#39;, border_mode=&#39;same&#39;, bias=True))
+SRCNN.add(Conv2D(nb_filter=1, nb_row=5, nb_col=5, init=&#39;glorot_uniform&#39;,
+                     activation=&#39;linear&#39;, border_mode=&#39;valid&#39;, bias=True))
+adam = Adam(lr=0.0003)
+SRCNN.compile(optimizer=adam, loss=&#39;mean_squared_error&#39;, metrics=[&#39;mean_squared_error&#39;])
+</code></pre>
+
+<p>预测阶段使用训练后得到的模型直接对低分辨率图像进行处理就可得到相应的高分辨率图像。项目会同时输出采用SRCNN和Bicubic插值两种方法得到的超分辨率图像供用户比较。</p>
 
 
     
