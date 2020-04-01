@@ -217,6 +217,8 @@ adam = Adam(lr=0.0003)
 SRCNN.compile(optimizer=adam, loss=&#39;mean_squared_error&#39;, metrics=[&#39;mean_squared_error&#39;])
 </code></pre>
 
+<p>SRCNN主体部分为3个卷积层，其中的详细部分如上文所述，其loss function定义为各像素点的均方误差。</p>
+
 <p>预测阶段使用训练后得到的模型直接对低分辨率图像进行处理就可得到相应的高分辨率图像。项目会同时输出采用SRCNN和Bicubic插值两种方法得到的超分辨率图像供用户比较。</p>
 
 
@@ -227,6 +229,9 @@ SRCNN.compile(optimizer=adam, loss=&#39;mean_squared_error&#39;, metrics=[&#39;m
       <div class="row">
         <div class="large-6 columns">
         <p class="text-left" style="padding:15px 0px;">
+      
+          <a href="15848628637136.html" 
+          title="Previous Post: 阿里云深度学习环境搭建">&laquo; 阿里云深度学习环境搭建</a>
       
         </p>
         </div>
@@ -317,6 +322,12 @@ SRCNN.compile(optimizer=adam, loss=&#39;mean_squared_error&#39;, metrics=[&#39;m
 	      
 		      
 			      <li class="post">
+			        <a href="15848628637136.html">阿里云深度学习环境搭建</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
 			        <a href="15837602816287.html">图片超分辨神经网络：Super-Resolution Convolutional Neural Network(SRCNN)</a>
 			      </li>
 		     
@@ -340,10 +351,6 @@ SRCNN.compile(optimizer=adam, loss=&#39;mean_squared_error&#39;, metrics=[&#39;m
 		     
 		  
 		      
-			      <li class="post">
-			        <a href="15605036887704.html">Oracle Enterprise Manager</a>
-			      </li>
-		     
 		  
 		      
 		  
