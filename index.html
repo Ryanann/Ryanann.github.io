@@ -15,9 +15,7 @@
     <link rel="stylesheet" href="asset/css/docs.css" />
     <script src="asset/js/vendor/modernizr.js"></script>
     <script src="asset/js/vendor/jquery.js"></script>
-  <script src="asset/highlightjs/highlight.pack.js"></script>
-  <link href="asset/highlightjs/styles/github.css" media="screen, projection" rel="stylesheet" type="text/css">
-  <script>hljs.initHighlightingOnLoad();</script>
+ 
 <script type="text/javascript">
   function before_search(){
     var searchVal = 'site: ' + document.getElementById('search_input').value;
@@ -77,6 +75,8 @@
     <li><label>Categories</label></li>
 
         
+            <li><a href="vim.html">vim</a></li>
+        
             <li><a href="thoughts.html">thoughts</a></li>
         
             <li><a href="java.html">java</a></li>
@@ -110,6 +110,200 @@
 		<div class="markdown-body home-categories">
 		
 			<div class="article">
+                <a class="clearlink" href="15938652486267.html">
+                
+                  <h1>Vim开发环境搭建</h1>
+                  <div class="a-content">
+                      
+                      <div class="a-content-text">
+                        
+                        	<p>Vim的使用在日常开发中十分重要，相关的插件也十分丰富。本文就面向MacOS和Linux系统，对其中几个较知名插件的安装进行介绍。提到Vim的插件，当然少不了有最难安装Vim插件之称的YouCompleteMe。这个插件的安装在不同的系统中会遇到不同的问题，文章会介绍本人两次安装的过程。</p>
+
+<p>建议大家在安装插件时更新Vim版本，至少要确保版本高于7.4，否则在安装过程中会出现各种问题，尤其是YouCompleteMe插件。</p>
+
+<h2 id="toc_0">Vundle</h2>
+
+<p>Vundle是一个Vim插件管理器，可以帮助我们方便地进行插件的安装、更新和删除。</p>
+
+<p>运行如下指令安装Vundle：</p>
+
+<pre><code class="language-text">git clone https://github.com/gmarik/Vundle.vim.git ~/.vim/bundle/Vundle.vim
+</code></pre>
+
+<p>项目clone完毕后在~/.vimrc中添加配置：</p>
+
+<pre><code class="language-text">set nocompatible              &quot; required
+filetype off                  &quot; required
+dd
+set rtp+=~/.vim/bundle/Vundle.vim
+call vundle#begin()
+Plugin &#39;gmarik/Vundle.vim&#39;
+call vundle#end()            &quot; required
+filetype plugin indent on    &quot; required
+</code></pre>
+
+<p>最后在vim中运行<code>:PluginInstall</code>就算安装完成了。之后再安装插件只需要在<code>call vundle#begin()</code>和<code>call vundle#end()</code>中添加语句即可。</p>
+
+<h2 id="toc_1">YouCompleteMe</h2>
+
+<p>本人在安装该插件时，在MacOS系统和Linux系统中遇到了不同的情况。</p>
+
+<h3 id="toc_2">MacOS</h3>
+
+<p>如果需要支持go项目自动补全等，需要在~/.bash_profile文件中正确配置GOROOT、GOPATH、GOBIN路径，且路径中不能包含文件链接</p>
+
+<p>在~/.vimrc中添加如下语句：</p>
+
+<pre><code class="language-text">Plugin &#39;Valloric/YouCompleteMe&#39;
+</code></pre>
+
+<p>执行<code>PluginInstall</code>后提示<code>YouCompleteMe unavailable: unable to load Python</code>。</p>
+
+<p>于是重新安装Vim，并设定当前用户使用新安装的Vim：</p>
+
+<pre><code class="language-text">brew install vim
+</code></pre>
+
+<p>命令执行后，可以看到新vim的路径，如<code>/usr/local/bin/vim</code><br/>
+然后在~/.bash_profile中添加配置，指定当前用户运行的vim：</p>
+
+<pre><code class="language-text">alias vim=&#39;/usr/local/bin/vim&#39;
+</code></pre>
+
+<p>完成vim的重新安装后，首先删除YCM插件（删去vimrc中的相关行，然后执行<code>:PluginClean</code>）</p>
+
+<p>然后重新安装YCM插件，安装完成后发现之前的错误提示消失了，取而代之的是<code>The ycmd server SHUT DOWN (restart with &#39;:YcmRestartServer&#39;). YCM core library not detected; you need to compile YCM before using it. Follow the instructions in the documentation</code></p>
+
+<p>这就是YCM安装的复杂之处了，我们需要对它进行编译安装，具体指令如下：</p>
+
+<pre><code class="language-text"># 安装cmake
+brew install cmake
+
+# 准备编译文件夹
+cd ~
+mkdir ycm_build
+cd ycm_build
+
+# 生成makefiles文件（若不需要支持C/C++的自动补全）
+cmake -G &quot;Unix Makefiles&quot; ~/.vim/bundle/YouCompleteMe/third_party/ycmd/cpp
+
+# 生成makefiles文件（若需要支持C/C++的自动补全）
+cmake -G &quot;Unix Makefiles&quot; -DUSE_SYSTEM_LIBCLANG=ON . ~/.vim/bundle/YouCompleteMe/third_party/ycmd/cpp
+
+# 编译
+cmake --build . --target ycm_core --config Release
+</code></pre>
+
+<p>这样就算安装成功了，此时YCM可以支持对Python项目（若选择了第二种生成makefiles文件还可以支持c/c++项目）的自动补全和代码跳转，若需要进一步对go等项目进行支持，还需进一步配置：</p>
+
+<pre><code class="language-text">cd ~/.vim/bundle/YouCompleteMe
+python3 install.py --go-completer
+# 更多安装可以执行python3 install.py --help查看
+</code></pre>
+
+<p>MacOS安装YCM的主要问题就在于系统默认Vim安装后会找不到Python支持。</p>
+
+<h3 id="toc_3">Linux</h3>
+
+<p>如果需要支持go项目自动补全等，需要在~/.bash_profile文件中正确配置GOROOT、GOPATH、GOBIN路径，且路径中不能包含文件链接。本人刚开始采用~/go配置相关路径，发现插件不能正确使用，后改为从根目录开始的路径，才正确装上。</p>
+
+<p>在~/.vimrc中添加如下语句：</p>
+
+<pre><code class="language-text">Plugin &#39;Valloric/YouCompleteMe&#39;
+</code></pre>
+
+<p>执行<code>PluginInstall</code>后提示<code>The ycmd server SHUT DOWN (restart with &#39;:YcmRestartServer&#39;). YCM core library not detected; you need to compile YCM before using it. Follow the instructions in the documentation</code></p>
+
+<pre><code class="language-text">sudo apt-get install cmake  
+sudo apt-get install python-dev python3-dev
+</code></pre>
+
+<p>因为本人使用的Linux系统中没有Clang，所以需要下载相关包以让YCM支持c/c++项目的自动补全：</p>
+
+<pre><code class="language-text">wget http://releases.llvm.org/9.0.0/clang+llvm-9.0.0-x86_64-linux-gnu-ubuntu-14.04.tar.xz
+
+xz -d clang+llvm-9.0.0-x86_64-linux-gnu-ubuntu-14.04.tar.xz
+tar -xvf clang+llvm-9.0.0-x86_64-linux-gnu-ubuntu-14.04.tar
+</code></pre>
+
+<p>编译：</p>
+
+<pre><code class="language-text">cd ~
+mkdir ycm_build
+#将下载的clang移到一个自己建的llvm目录中
+mkdir -p ycm_temp/llvm_root_dir
+mv ~/clang+llvm-9.0.0-x86_64-linux-gnu-ubuntu-14.04/* ~/ycm_temp/llvm_root_dir/
+cd  ycm_build
+cmake -G &quot;Unix Makefiles&quot; -DUSE_SYSTEM_BOOST=ON -DPATH_TO_LLVM_ROOT=~/ycm_temp/llvm_root_dir ~/.vim/bundle/YouCompleteMe/third_party/ycmd/cpp
+</code></pre>
+
+<p>当然，如果不需要支持c/c++项目的代码补全和跳转，则不需要下载llvm、clang，直接使用如下指令编译即可：</p>
+
+<pre><code class="language-text">cd ~
+mkdir ycm_build
+cd ycm_build
+cmake -G &quot;Unix Makefiles&quot; ~/.vim/bundle/YouCompleteMe/third_party/ycmd/cpp
+cmake --build . --target ycm_core --config Release
+</code></pre>
+
+<p>同样地，如果需要支持go项目：</p>
+
+<pre><code class="language-text">cd ~/.vim/bundle/YouCompleteMe
+python3 install.py --go-completer
+# 更多安装可以执行python3 install.py --help查看
+</code></pre>
+
+<h3 id="toc_4">NERDTree</h3>
+
+<p>NERDTree插件可以展示项目的目录结构，其安装相对简单。</p>
+
+<p>在~/.vimrc文件的<code>call vundle#begin()</code>和<code>call vundle#end()</code>中添加语句<code>Plugin &#39;scrooloose/nerdtree&#39;</code>，然后执行<code>:PluginInstall</code></p>
+
+<p>这样就算安装成功了，比起YCM确实简单了不少。可以继续在~/.vimrc中添加NERDTree相关配置：</p>
+
+<pre><code class="language-text">&quot; NERDTree config
+&quot; open a NERDTree automatically when vim starts up
+autocmd vimenter * NERDTree
+&quot;open a NERDTree automatically when vim starts up if no files were specified
+autocmd StdinReadPre * let s:std_in=1
+autocmd VimEnter * if argc() == 0 &amp;&amp; !exists(&quot;s:std_in&quot;) | NERDTree | endif
+&quot;open NERDTree automatically when vim starts up on opening a directory
+autocmd StdinReadPre * let s:std_in=1
+autocmd VimEnter * if argc() == 1 &amp;&amp; isdirectory(argv()[0]) &amp;&amp; !exists(&quot;s:std_in&quot;) | exe &#39;NERDTree&#39; argv()[0] | wincmd p | ene | endif
+&quot;map F2 to open NERDTree
+map &lt;F2&gt; :NERDTreeToggle&lt;CR&gt;
+&quot;close vim if the only window left open is a NERDTree
+autocmd bufenter * if (winnr(&quot;$&quot;) == 1 &amp;&amp; exists(&quot;b:NERDTree&quot;) &amp;&amp; b:NERDTree.isTabTree()) | q | endif
+</code></pre>
+
+<p>配置完成后，使用vim打开文件时，会自动打开NERDTree。</p>
+
+                        
+                      </div>
+                  </div>
+                </a>
+                <div class="read-more clearfix">
+                  <div class="more-left left">
+                  
+                    <span class="date">2020/7/4</span>
+                    <span>posted in&nbsp;</span> 
+          				  
+          					    <span class="posted-in"><a href='vim.html'>vim</a></span>
+          				   
+                    
+
+                  </div>
+                  <div class="more-right right">
+                  <span class="comments">
+                      
+
+                       
+                  </span>
+                  </div>
+                </div>
+              </div><!-- article -->
+        
+			<div class="article">
                 <a class="clearlink" href="15848628637136.html">
                 
                   <h1>阿里云深度学习环境搭建</h1>
@@ -131,6 +325,8 @@
           				  
           					    <span class="posted-in"><a href='machine%20learning.html'>machine learning</a></span>
           				   
+                    
+
                   </div>
                   <div class="more-right right">
                   <span class="comments">
@@ -163,6 +359,8 @@
           				  
           					    <span class="posted-in"><a href='machine%20learning.html'>machine learning</a></span>
           				   
+                    
+
                   </div>
                   <div class="more-right right">
                   <span class="comments">
@@ -195,6 +393,8 @@
           				  
           					    <span class="posted-in"><a href='machine%20learning.html'>machine learning</a></span>
           				   
+                    
+
                   </div>
                   <div class="more-right right">
                   <span class="comments">
@@ -227,6 +427,8 @@
           				  
           					    <span class="posted-in"><a href='database.html'>database</a></span>
           				   
+                    
+
                   </div>
                   <div class="more-right right">
                   <span class="comments">
@@ -259,6 +461,8 @@
           				  
           					    <span class="posted-in"><a href='database.html'>database</a></span>
           				   
+                    
+
                   </div>
                   <div class="more-right right">
                   <span class="comments">
@@ -291,6 +495,8 @@
           				  
           					    <span class="posted-in"><a href='database.html'>database</a></span>
           				   
+                    
+
                   </div>
                   <div class="more-right right">
                   <span class="comments">
@@ -323,6 +529,8 @@
           				  
           					    <span class="posted-in"><a href='network.html'>network</a></span>
           				   
+                    
+
                   </div>
                   <div class="more-right right">
                   <span class="comments">
@@ -355,6 +563,8 @@
           				  
           					    <span class="posted-in"><a href='java.html'>java</a></span>
           				   
+                    
+
                   </div>
                   <div class="more-right right">
                   <span class="comments">
@@ -387,6 +597,8 @@
           				  
           					    <span class="posted-in"><a href='java.html'>java</a></span>
           				   
+                    
+
                   </div>
                   <div class="more-right right">
                   <span class="comments">
@@ -419,6 +631,8 @@
           				  
           					    <span class="posted-in"><a href='code%20race.html'>code race</a></span>
           				   
+                    
+
                   </div>
                   <div class="more-right right">
                   <span class="comments">
@@ -451,6 +665,8 @@
           				  
           					    <span class="posted-in"><a href='code%20race.html'>code race</a></span>
           				   
+                    
+
                   </div>
                   <div class="more-right right">
                   <span class="comments">
@@ -483,6 +699,8 @@
           				  
           					    <span class="posted-in"><a href='java.html'>java</a></span>
           				   
+                    
+
                   </div>
                   <div class="more-right right">
                   <span class="comments">
@@ -515,6 +733,8 @@
           				  
           					    <span class="posted-in"><a href='network.html'>network</a></span>
           				   
+                    
+
                   </div>
                   <div class="more-right right">
                   <span class="comments">
@@ -547,6 +767,8 @@
           				  
           					    <span class="posted-in"><a href='java.html'>java</a></span>
           				   
+                    
+
                   </div>
                   <div class="more-right right">
                   <span class="comments">
@@ -579,6 +801,8 @@
           				  
           					    <span class="posted-in"><a href='machine%20learning.html'>machine learning</a></span>
           				   
+                    
+
                   </div>
                   <div class="more-right right">
                   <span class="comments">
@@ -611,6 +835,8 @@
           				  
           					    <span class="posted-in"><a href='java.html'>java</a></span>
           				   
+                    
+
                   </div>
                   <div class="more-right right">
                   <span class="comments">
@@ -643,6 +869,8 @@
           				  
           					    <span class="posted-in"><a href='java.html'>java</a></span>
           				   
+                    
+
                   </div>
                   <div class="more-right right">
                   <span class="comments">
@@ -679,6 +907,8 @@
           				  
           					    <span class="posted-in"><a href='thoughts.html'>thoughts</a></span>
           				   
+                    
+
                   </div>
                   <div class="more-right right">
                   <span class="comments">
@@ -744,6 +974,8 @@
 
       	<p class="cat-list">
         
+            <a href="vim.html"><strong>vim</strong></a>
+        
             <a href="thoughts.html"><strong>thoughts</strong></a>
         
             <a href="java.html"><strong>java</strong></a>
@@ -771,6 +1003,12 @@
 	      
 		      
 			      <li class="post">
+			        <a href="15938652486267.html">Vim开发环境搭建</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
 			        <a href="15848628637136.html">阿里云深度学习环境搭建</a>
 			      </li>
 		     
@@ -794,10 +1032,6 @@
 		     
 		  
 		      
-			      <li class="post">
-			        <a href="15605037286643.html">自研分布式关系型数据库</a>
-			      </li>
-		     
 		  
 		      
 		  
@@ -846,6 +1080,213 @@ Theme used <a target="_blank" href="http://github.com">GitHub CSS</a>.</p>
       </div>
     </div>
 
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<style type="text/css">
+figure{margin: 0;padding: 0;}
+figcaption{text-align:center;}
+
+/* PrismJS 1.14.0
+ http://prismjs.com/download.html#themes=prism&languages=markup+css+clike+javascript */
+/**
+ * prism.js default theme for JavaScript, CSS and HTML
+ * Based on dabblet (http://dabblet.com)
+ * @author Lea Verou
+ */
+
+code[class*="language-"],
+pre[class*="language-"] {
+    color: black;
+    background: none;
+    text-shadow: 0 1px white;
+    font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+    text-align: left;
+    white-space: pre;
+    word-spacing: normal;
+    word-break: normal;
+    word-wrap: normal;
+    line-height: 1.5;
+    
+    -moz-tab-size: 4;
+    -o-tab-size: 4;
+    tab-size: 4;
+    
+    -webkit-hyphens: none;
+    -moz-hyphens: none;
+    -ms-hyphens: none;
+    hyphens: none;
+}
+
+pre[class*="language-"]::-moz-selection, pre[class*="language-"] ::-moz-selection,
+code[class*="language-"]::-moz-selection, code[class*="language-"] ::-moz-selection {
+    text-shadow: none;
+    background:#b3d4fc;
+}
+
+pre[class*="language-"]::selection, pre[class*="language-"] ::selection,
+code[class*="language-"]::selection, code[class*="language-"] ::selection {
+    text-shadow: none;
+    background: #b3d4fc;
+}
+
+@media print {
+    code[class*="language-"],
+    pre[class*="language-"] {
+        text-shadow: none;
+    }
+}
+
+/* Code blocks */
+pre[class*="language-"] {
+    padding: 1em;
+    margin: .5em 0;
+    overflow: auto;
+}
+
+:not(pre) > code[class*="language-"],
+pre[class*="language-"] {
+    background: #F7F7F7;
+}
+
+/* Inline code */
+:not(pre) > code[class*="language-"] {
+    padding: .1em;
+    border-radius: .3em;
+    white-space: normal;
+}
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+    color: slategray;
+}
+
+.token.punctuation {
+    color: #999;
+}
+
+.namespace {
+    opacity: .7;
+}
+
+.token.property,
+.token.tag,
+.token.boolean,
+.token.number,
+.token.constant,
+.token.symbol,
+.token.deleted {
+    color: #905;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+    color: #690;
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string {
+    color: #9a6e3a;
+    background: hsla(0, 0%, 100%, .5);
+}
+
+.token.atrule,
+.token.attr-value,
+.token.keyword {
+    color: #07a;
+}
+
+.token.function,
+.token.class-name {
+    color: #DD4A68;
+}
+
+.token.regex,
+.token.important,
+.token.variable {
+    color: #e90;
+}
+
+.token.important,
+.token.bold {
+    font-weight: bold;
+}
+.token.italic {
+    font-style: italic;
+}
+
+.token.entity {
+    cursor: help;
+}
+
+
+pre[class*="language-"].line-numbers {
+    position: relative;
+    padding-left: 3.8em;
+    counter-reset: linenumber;
+}
+
+pre[class*="language-"].line-numbers > code {
+    position: relative;
+    white-space: inherit;
+}
+
+.line-numbers .line-numbers-rows {
+    position: absolute;
+    pointer-events: none;
+    top: 0;
+    font-size: 100%;
+    left: -3.8em;
+    width: 3em; /* works for line-numbers below 1000 lines */
+    letter-spacing: -1px;
+    border-right: 1px solid #999;
+
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+
+}
+
+    .line-numbers-rows > span {
+        pointer-events: none;
+        display: block;
+        counter-increment: linenumber;
+    }
+
+        .line-numbers-rows > span:before {
+            content: counter(linenumber);
+            color: #999;
+            display: block;
+            padding-right: 0.8em;
+            text-align: right;
+        }
+
+</style>
+
   
     
 
@@ -865,8 +1306,6 @@ Theme used <a target="_blank" href="http://github.com">GitHub CSS</a>.</p>
       });
      
     </script>
-
-    
 
 
 
