@@ -131,50 +131,39 @@
 
       <div class="article-content">
       <p>了解内存模型能帮助我们写出更好的并发代码，这部分内容在实际开发过程中十分重要。这篇博客主要参考了《深入理解Java虚拟机》和《Java并发编程实战》中的内容，对Java内存模型的一些基本概念进行总结。</p>
-
-<h2 id="toc_0">内存模型由来</h2>
-
+<h2><a id="%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B%E7%94%B1%E6%9D%A5" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>内存模型由来</h2>
 <p>CPU的处理速度相对于内存读写速度要快上许多，两者有几个数量级的差距。为了让数据读写操作不给CPU处理拖太多后腿，现代计算机系统采用了两种方式：</p>
-
 <ol>
-<li><p>加入了一层读写速度尽可能接近处理器运算速度的高速缓存（Cache）来作为内存与处理器之间的缓冲（如下图），以此来减少从内存读取速度的次数。</p></li>
-<li><p>对代码进行乱序执行（Out-of-Order Execution）优化。</p></li>
+<li>
+<p>加入了一层读写速度尽可能接近处理器运算速度的高速缓存（Cache）来作为内存与处理器之间的缓冲（如下图），以此来减少从内存读取速度的次数。</p>
+</li>
+<li>
+<p>对代码进行乱序执行（Out-of-Order Execution）优化。</p>
+</li>
 </ol>
-
-<p><img src="media/15558113568363/cache_coherence.jpg" alt="cache_coherence"/></p>
-
+<p><img src="media/15558113568363/cache_coherence.jpg" alt="cache_coherence" /></p>
 <p>这两种方式解决了处理器与内存的速度矛盾，但是也带来了一些问题：</p>
-
 <ol>
-<li><p>缓存一致性问题：在多处理器系统中，每个处理器都有自己的高速缓存，而它们又共享同一主内存，当多个处理器的运算任务都涉及同一块主内存区域时，就可能导致各自的缓存数据不一致。</p></li>
-<li><p>指令重排问题：乱序执行优化仅保证乱序执行结果与顺序执行结果一致，并不能保证中间结果的正确性，因此在并发过程中，如果一个任务依赖于另一个任务的中间结果，则会产生问题。</p></li>
+<li>
+<p>缓存一致性问题：在多处理器系统中，每个处理器都有自己的高速缓存，而它们又共享同一主内存，当多个处理器的运算任务都涉及同一块主内存区域时，就可能导致各自的缓存数据不一致。</p>
+</li>
+<li>
+<p>指令重排问题：乱序执行优化仅保证乱序执行结果与顺序执行结果一致，并不能保证中间结果的正确性，因此在并发过程中，如果一个任务依赖于另一个任务的中间结果，则会产生问题。</p>
+</li>
 </ol>
-
 <p>为了解决这两个问题，就需要对数据的读写设定一些规则（或者称为协议），满足这些协议的读写过程就能保证程序的正确执行。而内存模型指的就是在满足这些协议的情况下，对内存或者Cache中数据进行读写访问的过程抽象。</p>
-
-<h2 id="toc_1">Java内存模型</h2>
-
+<h2><a id="java%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>Java内存模型</h2>
 <p>第一节介绍了物理机相关的内存模型，其中的一些概念可以直接类比到JVM中。</p>
-
-<p><img src="media/15558113568363/JMM.jpg" alt="JM"/></p>
-
+<p><img src="media/15558113568363/JMM.jpg" alt="JM" /></p>
 <p>每个Java线程都可能使用不同的处理器，也就会有自己的数据缓冲区来暂时存储主内存中的数据，从而就产生了缓存一致性问题；同时Java程序在编译阶段、运行时、CPU执行阶段都可能被进行指令重排序。</p>
-
 <p>同样的，JVM也需要定义一套协议来解决上述问题，同时，这套协议需要屏蔽掉各种硬件和操作系统的内存访问差异，以实现让Java程序在各种平台下都能达到一致的内存访问效果。</p>
-
 <p>下面就对Java的一些数据访问规则进行介绍。</p>
-
-<h2 id="toc_2">Java数据访问规则</h2>
-
-<h3 id="toc_3">volatile型变量的特殊规则</h3>
-
+<h2><a id="java%E6%95%B0%E6%8D%AE%E8%AE%BF%E9%97%AE%E8%A7%84%E5%88%99" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>Java数据访问规则</h2>
+<h3><a id="volatile%E5%9E%8B%E5%8F%98%E9%87%8F%E7%9A%84%E7%89%B9%E6%AE%8A%E8%A7%84%E5%88%99" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>volatile型变量的特殊规则</h3>
 <p><strong>可见性</strong>是我们最常讨论的关于volatile的性质。这里可见性是指当一条线程修改了这个变量的值，新值对于其他线程来说是可以立即得知的。</p>
-
 <p><strong>禁止指令重排</strong>是volatile的第二个重要性质，DCL模式就是该性质的一个典型应用</p>
-
 <p>Java会在volatile变量的写操作完成后添加一个<strong>lock</strong>指令，它的作用是使本CPU的Cache写入内存，该写入动作也会引起别的CPU或者别的内核无效化其Cache。这样就实现了<strong>变量的写每次都直接写入内存，变量的读每次都从内存中读</strong>。同时，lock指令放在变量赋值、对象初始化操作之后，这样<strong>其他线程能获取对象的reference时，对象一定已经初始化完成了</strong>。</p>
-
-<pre><code class="language-text">public class Singleton{  
+<pre><code class="language-plain_text">public class Singleton{  
   private static volatile Singleton single;    //声明静态的单例对象的变量  
   private Singleton(){}    //私有构造方法   
     
@@ -190,15 +179,11 @@
   }  
 }  
 </code></pre>
-
-<h3 id="toc_4">final型变量的特殊规则</h3>
-
+<h3><a id="final%E5%9E%8B%E5%8F%98%E9%87%8F%E7%9A%84%E7%89%B9%E6%AE%8A%E8%A7%84%E5%88%99" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>final型变量的特殊规则</h3>
 <p>final型变量在Java内存模型方面的主要性质也是<strong>禁止指令重排</strong>。final修饰的类变量在初始化过程中具有如下性质：</p>
-
 <ul>
 <li>该变量的初始化不会被重排序到构造函数之外，也就是对某个类进行实例化时，当构造函数返回，final修饰的类变量一定已经初始化完成。</li>
 </ul>
-
 <p>在类初始化禁止指令重排方面volatile和final功能类似。</p>
 
 
@@ -304,6 +289,12 @@
 	      
 		      
 			      <li class="post">
+			        <a href="16445813243669.html">PU Learning (Learning from Positive and Unlabeled Example)</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
 			        <a href="15938652486267.html">Vim开发环境搭建</a>
 			      </li>
 		     
@@ -327,10 +318,6 @@
 		     
 		  
 		      
-			      <li class="post">
-			        <a href="15704371126805.html">OceanBase登顶TPC-C榜单</a>
-			      </li>
-		     
 		  
 		      
 		  

@@ -131,94 +131,80 @@
 
       <div class="article-content">
       <p>SRCNN是首个使用深度学习进行超分辨率的算法，在此基础上演化出了一系列类似的神经网络。因为该网络结构较简单且效果不错，所以就先对它进行学习。</p>
-
-<h2 id="toc_0">图像超分辨率</h2>
-
+<h2><a id="%E5%9B%BE%E5%83%8F%E8%B6%85%E5%88%86%E8%BE%A8%E7%8E%87" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>图像超分辨率</h2>
 <p>超分辨率（Super Resolution）任务的目标就是将输入的低分辨率的图像转换为高分辨率的图像。可以理解为一种基于较少像素点，填充较多像素点的方式。图像超分辨率与图像去噪、图像去模糊等一脉相承，图像去噪关注在图像尺寸不变的情况下，将被“污染”的像素替换为正确的像素，有些工具在超分辨率的同时也可以达到降噪的目的。</p>
-
-<h2 id="toc_1">Bicubic插值</h2>
-
+<h2><a id="bicubic%E6%8F%92%E5%80%BC" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>Bicubic插值</h2>
 <p>在通过CNN进行超分辨率之前，首先需要使用Bicubic插值将图像扩大。这里简单对Bicubic插值进行介绍。</p>
-
 <p>对待插值的像素点(x‘,y’)（x‘和y’可以为浮点数），首先找到其在原图中最接近的坐标点(x,y)，然后取原图中(x,y)附近的4x4邻域点(xi,yj), i,j = 0,1,2,3。按如下公式进行插值计算：</p>
-
-<p><img src="media/15837602816287/15840121496214.jpg" alt="" class="mw_img_center" style="width:300px;display: block; clear:both; margin: 0 auto;"/></p>
-
-<p>其中W(x, y)即为Bicubic函数：<br/>
-<img src="media/15837602816287/15840122261462.jpg" alt="" class="mw_img_center" style="width:300px;display: block; clear:both; margin: 0 auto;"/></p>
-
+<p><img src="media/15837602816287/15840121496214.jpg" alt="" class="mw_img_center" style="width:300px;display: block; clear:both; margin: 0 auto;" /></p>
+<p>其中W(x, y)即为Bicubic函数：<br />
+<img src="media/15837602816287/15840122261462.jpg" alt="" class="mw_img_center" style="width:300px;display: block; clear:both; margin: 0 auto;" /></p>
 <p>当a取-1时该函数图像如图所示，此时其最接近的函数是y = sin(x<em>PI)/(x</em>PI)。</p>
-
-<p><img src="media/15837602816287/15840127025253.jpg" alt="" class="mw_img_center" style="width:500px;display: block; clear:both; margin: 0 auto;"/></p>
-
-<h2 id="toc_2">SRCNN结构及原理</h2>
-
-<p><img src="media/15837602816287/SRCNN.png" alt="SRCNN " class="mw_img_center" style="display: block; clear:both; margin: 0 auto;"/></p>
-
+<p><img src="media/15837602816287/15840127025253.jpg" alt="" class="mw_img_center" style="width:500px;display: block; clear:both; margin: 0 auto;" /></p>
+<h2><a id="srcnn%E7%BB%93%E6%9E%84%E5%8F%8A%E5%8E%9F%E7%90%86" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>SRCNN结构及原理</h2>
+<p><img src="media/15837602816287/SRCNN.png" alt="SRCNN " class="mw_img_center" style="display: block; clear:both; margin: 0 auto;" /></p>
 <p>SRCNN的结构如图所示，主要由三个卷积层构成。</p>
-
 <p>第一层为conv层(实现数据读入)</p>
-
 <ul>
-<li><p>输入：低分辨率补丁</p></li>
-<li><p>卷积核：c*f1*f1*n1（其中，c为输入图像通道数，文中取YCrCb中Y通道，c=1；f1=9；n1为当前卷积核输出深度取64）</p></li>
-<li><p>作用：提取图像特征。从低分辨率图像中提取多个patch图像块，每个块被卷积操作表示为多维的向量（维数等于filter的数量），所有的特征向量组成特征矩阵（feature maps）</p></li>
+<li>
+<p>输入：低分辨率补丁</p>
+</li>
+<li>
+<p>卷积核：c*f1*f1*n1（其中，c为输入图像通道数，文中取YCrCb中Y通道，c=1；f1=9；n1为当前卷积核输出深度取64）</p>
+</li>
+<li>
+<p>作用：提取图像特征。从低分辨率图像中提取多个patch图像块，每个块被卷积操作表示为多维的向量（维数等于filter的数量），所有的特征向量组成特征矩阵（feature maps）</p>
+</li>
 </ul>
-
 <p>第二层为conv层(实现非线性多个映射)</p>
-
 <ul>
-<li><p>输入：第一层输入</p></li>
-<li><p>卷积核：n1*1*1*n2（其中，n1为前一卷积层输出数据深度64，n2为当前层数据输出深度为32）</p></li>
-<li><p>作用：非线性映射：将n1维特征矩阵，通过卷积操作实现非线性映射，变成另一n2维特征矩阵</p></li>
+<li>
+<p>输入：第一层输入</p>
+</li>
+<li>
+<p>卷积核：n1*1*1*n2（其中，n1为前一卷积层输出数据深度64，n2为当前层数据输出深度为32）</p>
+</li>
+<li>
+<p>作用：非线性映射：将n1维特征矩阵，通过卷积操作实现非线性映射，变成另一n2维特征矩阵</p>
+</li>
 </ul>
-
 <p>第三层为conv层(实现重建)</p>
-
 <ul>
-<li><p>输入：第二层输出</p></li>
-<li><p>卷积核：n2*f3*f3*c（其中，n2为前一个卷积层输出数据深度，f3=5，c为重建后高分辨率图通道数，和输入保持一致c=1）</p></li>
-<li><p>作用： 重构图像：等于是个反卷积的过程，将n2的特征矩阵还原为超分辨图像</p></li>
+<li>
+<p>输入：第二层输出</p>
+</li>
+<li>
+<p>卷积核：n2*f3*f3*c（其中，n2为前一个卷积层输出数据深度，f3=5，c为重建后高分辨率图通道数，和输入保持一致c=1）</p>
+</li>
+<li>
+<p>作用： 重构图像：等于是个反卷积的过程，将n2的特征矩阵还原为超分辨图像</p>
+</li>
 </ul>
-
-<h2 id="toc_3">实现</h2>
-
+<h2><a id="%E5%AE%9E%E7%8E%B0" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>实现</h2>
 <p>代码实现可以参考该<a href="https://github.com/Ryanann/SRCNN">GitHub项目</a>，该项目主要基于open cv和keras完成图像处理和神经网络搭建工作，代码中对关键代码进行了注释说明。其中主要有两个较重要的文件夹：prepare_data.py 和main.py。</p>
-
-<h3 id="toc_4">数据预处理(prepare_data.py)</h3>
-
+<h3><a id="%E6%95%B0%E6%8D%AE%E9%A2%84%E5%A4%84%E7%90%86prepare-data-py" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>数据预处理(prepare_data.py)</h3>
 <p>数据预处理部分通过对已有的高分辨率图像文件进行处理生成训练数据和测试数据集。具体地，该项目通过两次Bicubic插值得到初试数据：</p>
-
 <ol>
 <li>使用Bicubic插值将已有的图像分辨率缩小n倍；</li>
 <li>对缩小后的图像再次使用Bicubic插值，恢复到原始大小。</li>
 </ol>
-
 <p>通过上述操作后，就可以得到低分辨率图像作为模型的输入，而原始的高分辨率图像作为模型处理的目标标签。</p>
-
 <p>其中，为了提升模型效果，该部分对已有样本进行了数据增强操作。具体地，项目通过将已有图像裁剪为多个固定大小的子图，增加了样本数量。通过<em>patch_size</em>和<em>label_size</em>两个参数可以设定子图的大小。</p>
-
 <p>其中<em>patch_size</em>用于设定输入图片的大小，<em>label_size</em>用于设定标签图片的大小。根据该项目中设定的各卷基层的padding策略，最终输出文件的大小小于输入文件，两参数满足以下关系：</p>
-
 <p><em>patch_size</em> - <em>label_size</em> = 12</p>
-
-<h3 id="toc_5">训练和预测(main.py)</h3>
-
+<h3><a id="%E8%AE%AD%E7%BB%83%E5%92%8C%E9%A2%84%E6%B5%8Bmain-py" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>训练和预测(main.py)</h3>
 <p>模型训练阶段基于上述预处理步骤，通过读取预处理后的样本数据和相应标签，对模型进行训练。其中SRCNN模型通过keras进行搭建，具体代码如下：</p>
-
-<pre><code class="language-text">SRCNN = Sequential()
-SRCNN.add(Conv2D(nb_filter=128, nb_row=9, nb_col=9, init=&#39;glorot_uniform&#39;,
-                     activation=&#39;relu&#39;, border_mode=&#39;valid&#39;, bias=True, input_shape=(None, None, 1)))
-SRCNN.add(Conv2D(nb_filter=64, nb_row=3, nb_col=3, init=&#39;glorot_uniform&#39;,
-                     activation=&#39;relu&#39;, border_mode=&#39;same&#39;, bias=True))
-SRCNN.add(Conv2D(nb_filter=1, nb_row=5, nb_col=5, init=&#39;glorot_uniform&#39;,
-                     activation=&#39;linear&#39;, border_mode=&#39;valid&#39;, bias=True))
+<pre><code class="language-plain_text">SRCNN = Sequential()
+SRCNN.add(Conv2D(nb_filter=128, nb_row=9, nb_col=9, init='glorot_uniform',
+                     activation='relu', border_mode='valid', bias=True, input_shape=(None, None, 1)))
+SRCNN.add(Conv2D(nb_filter=64, nb_row=3, nb_col=3, init='glorot_uniform',
+                     activation='relu', border_mode='same', bias=True))
+SRCNN.add(Conv2D(nb_filter=1, nb_row=5, nb_col=5, init='glorot_uniform',
+                     activation='linear', border_mode='valid', bias=True))
 adam = Adam(lr=0.0003)
-SRCNN.compile(optimizer=adam, loss=&#39;mean_squared_error&#39;, metrics=[&#39;mean_squared_error&#39;])
+SRCNN.compile(optimizer=adam, loss='mean_squared_error', metrics=['mean_squared_error'])
 </code></pre>
-
 <p>SRCNN主体部分为3个卷积层，其中的详细部分如上文所述，其loss function定义为各像素点的均方误差。</p>
-
 <p>预测阶段使用训练后得到的模型直接对低分辨率图像进行处理就可得到相应的高分辨率图像。项目会同时输出采用SRCNN和Bicubic插值两种方法得到的超分辨率图像供用户比较。</p>
 
 
@@ -324,6 +310,12 @@ SRCNN.compile(optimizer=adam, loss=&#39;mean_squared_error&#39;, metrics=[&#39;m
 	      
 		      
 			      <li class="post">
+			        <a href="16445813243669.html">PU Learning (Learning from Positive and Unlabeled Example)</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
 			        <a href="15938652486267.html">Vim开发环境搭建</a>
 			      </li>
 		     
@@ -347,10 +339,6 @@ SRCNN.compile(optimizer=adam, loss=&#39;mean_squared_error&#39;, metrics=[&#39;m
 		     
 		  
 		      
-			      <li class="post">
-			        <a href="15704371126805.html">OceanBase登顶TPC-C榜单</a>
-			      </li>
-		     
 		  
 		      
 		  

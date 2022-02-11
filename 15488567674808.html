@@ -130,46 +130,58 @@
       </div><!-- article -->
 
       <div class="article-content">
-      <h2 id="toc_0">1. Sequential 序贯模型</h2>
-
+      <h2><a id="1-sequential%E5%BA%8F%E8%B4%AF%E6%A8%A1%E5%9E%8B" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>1. Sequential 序贯模型</h2>
 <ul>
-<li>仅适用于单输入、单输出、模型不分叉的情况</li>
-<li>通过向Sequential中不断add layer达到模型构建的目的，被添加的layer会按顺序自动连接</li>
-<li><p>样例：</p>
-<pre><code class="language-text">x = Sequential()
-x.add(Dense(32, activation=&#39;relu&#39;, input_dim=100))<br/>
-x.add(Dropout(0.25))<br/>
-model = x<br/>
+<li>
+<p>仅适用于单输入、单输出、模型不分叉的情况</p>
+</li>
+<li>
+<p>通过向Sequential中不断add layer达到模型构建的目的，被添加的layer会按顺序自动连接</p>
+</li>
+<li>
+<p>样例：</p>
+<pre><code class="language-plain_text">x = Sequential()
+x.add(Dense(32, activation='relu', input_dim=100))
+x.add(Dropout(0.25))
+model = x
 # 后序就是compile、fit等操作
-</code></pre></li>
+</code></pre>
+</li>
 </ul>
-
-<h2 id="toc_1">2. Model式模型</h2>
-
+<h2><a id="2-model%E5%BC%8F%E6%A8%A1%E5%9E%8B" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>2. Model式模型</h2>
 <ul>
-<li>可以有多个输入、多个输出，模型结构灵活，需要获取中间输出时常采用这种方式</li>
-<li>通过函数时编程方式定义模型结构</li>
-<li>最终定义整个模型的输入和输出</li>
-<li><p>样例：代码构建了如图所示的模型<br/>
-<img src="media/15488183553679/15488194771449.png" alt=""/></p>
-<pre><code class="language-text"># 模型一：
-main_input = Input(shape=(100,), dtype=&#39;int32&#39;, name=&#39;main_input&#39;)<br/>
-x = Embedding(output_dim=512, input_dim=10000, input_length=100)(main_input)<br/>
-lstm_out = LSTM(32)(x)<br/>
-auxiliary_output = Dense(1, activation=&#39;sigmoid&#39;, name=&#39;aux_output&#39;)(lstm_out)<br/>
-# 模型二：组合模型<br/>
-auxiliary_input = Input(shape=(5,), name=&#39;aux_input&#39;)  # 新加入的一个Input,5维度<br/>
-x = keras.layers.concatenate([lstm_out, auxiliary_input])   # 组合起来，对应起来<br/>
-# We stack a deep densely-connected network on top<br/>
-# 组合模型的形式<br/>
-x = Dense(64, activation=&#39;relu&#39;)(x)<br/>
-x = Dense(64, activation=&#39;relu&#39;)(x)<br/>
-x = Dense(64, activation=&#39;relu&#39;)(x)<br/>
-main_output = Dense(1, activation=&#39;sigmoid&#39;, name=&#39;main_output&#39;)(x)<br/>
-#最后，我们定义整个2输入，2输出的模型：<br/>
-model = Model(inputs=[main_input, auxiliary_input], outputs=[main_output, auxiliary_output])<br/>
+<li>
+<p>可以有多个输入、多个输出，模型结构灵活，需要获取中间输出时常采用这种方式</p>
+</li>
+<li>
+<p>通过函数时编程方式定义模型结构</p>
+</li>
+<li>
+<p>最终定义整个模型的输入和输出</p>
+</li>
+<li>
+<p>样例：代码构建了如图所示的模型<br />
+<img src="media/15488183553679/15488194771449.png" alt="" /></p>
+<pre><code class="language-plain_text"># 模型一：
+main_input = Input(shape=(100,), dtype='int32', name='main_input')
+x = Embedding(output_dim=512, input_dim=10000, input_length=100)(main_input)
+lstm_out = LSTM(32)(x)
+auxiliary_output = Dense(1, activation='sigmoid', name='aux_output')(lstm_out)
+  
+# 模型二：组合模型
+auxiliary_input = Input(shape=(5,), name='aux_input')  # 新加入的一个Input,5维度
+x = keras.layers.concatenate([lstm_out, auxiliary_input])   # 组合起来，对应起来
+# We stack a deep densely-connected network on top
+# 组合模型的形式
+x = Dense(64, activation='relu')(x)
+x = Dense(64, activation='relu')(x)
+x = Dense(64, activation='relu')(x)
+main_output = Dense(1, activation='sigmoid', name='main_output')(x)
+#最后，我们定义整个2输入，2输出的模型：
+model = Model(inputs=[main_input, auxiliary_input], outputs=[main_output, auxiliary_output])
 # 后序就是compile、fit等操作
-</code></pre></li>
+</code></pre>
+</li>
 </ul>
 
 
@@ -275,6 +287,12 @@ model = Model(inputs=[main_input, auxiliary_input], outputs=[main_output, auxili
 	      
 		      
 			      <li class="post">
+			        <a href="16445813243669.html">PU Learning (Learning from Positive and Unlabeled Example)</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
 			        <a href="15938652486267.html">Vim开发环境搭建</a>
 			      </li>
 		     
@@ -298,10 +316,6 @@ model = Model(inputs=[main_input, auxiliary_input], outputs=[main_output, auxili
 		     
 		  
 		      
-			      <li class="post">
-			        <a href="15704371126805.html">OceanBase登顶TPC-C榜单</a>
-			      </li>
-		     
 		  
 		      
 		  

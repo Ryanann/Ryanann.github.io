@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>
     
-  自研分布式关系型数据库 - 
+  PU Learning (Learning from Positive and Unlabeled Example) - 
   
   </title>
   
@@ -110,14 +110,14 @@
       <div class="markdown-body article-wrap">
        <div class="article">
           
-          <h1>自研分布式关系型数据库</h1>
+          <h1>PU Learning (Learning from Positive and Unlabeled Example)</h1>
      
         <div class="read-more clearfix">
-          <span class="date">2019/6/14</span>
+          <span class="date">2022/2/11</span>
 
           <span>posted in&nbsp;</span> 
           
-              <span class="posted-in"><a href='database.html'>database</a></span>
+              <span class="posted-in"><a href='machine%20learning.html'>machine learning</a></span>
            
          
           <span class="comments">
@@ -130,62 +130,39 @@
       </div><!-- article -->
 
       <div class="article-content">
-      <p>经过几年的研发，如今市面上已经有不少自研数据库。十分好奇这些数据库产品的特点和区别，于是选取了几个知名度较高的数据库产品进行调研。因为对它们的了解还不够，所以没有深入到技术层面进行介绍。</p>
-<h2><a id="oceanbase" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>OceanBase</h2>
-<p><img src="media/15605037286643/15605008247061.jpg" alt="15605008247061" /></p>
-<p><strong>完全自主研发的金融级分布式关系数据库</strong>。</p>
-<h3><a id="%E8%AE%BE%E8%AE%A1%E5%88%9D%E8%A1%B7" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>设计初衷</h3>
-<p>阿里内部已经实现了去IOE，但是已有的这一套方案不能直接推广到其他企业。原因在于阿里目前的体现主要依赖于开源的MySQL，许多功能需要在业务层面和数据库层面一同努力才能实现。**本质上这套系统是服务于阿里巴巴的专用系统，而不是一个通用的系统。**其他企业如果想模仿，同样需要在两个层面上共同发力，这样的难度是很大的。</p>
-<p>所以，从一开始OceanBase的目标就是——我们不想只做一个专用的系统，要做就一定要做一个<strong>通用的系统</strong>。我们<strong>希望今后 OceanBase 能够服务于各行各业</strong>，再也不需要企业投入几十几百甚至几千个人去改造、去重新做一套业务系统。</p>
-<h3><a id="%E5%9F%BA%E4%BA%8E%E8%87%AA%E7%A0%94%E5%86%85%E6%A0%B8" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>基于自研内核</h3>
-<p>与其他大多数数据库产品不同，OceanBase基于自研内核。从2009年开始研发，初期支撑淘宝的收藏夹功能，到2014年扛住双十一10%的流量，再到现在支付宝所有核心业务都基于OceanBase，团队经历了许多考验，OceanBase也日趋完善。</p>
-<h3><a id="%E9%87%91%E8%9E%8D%E7%BA%A7%E9%AB%98%E5%8F%AF%E7%94%A8" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>金融级高可用</h3>
-<p>传统数据库本质上是借助硬件的可靠性，也就是硬件需要达到五个九的可靠性来实现高可用的。就算出了故障，它的数据也能救得回来。但是这种手段需要非常高的成本，同时没有足够的扩展能力。</p>
-<p>为了实现<strong>高可用性</strong>，OceanBase引入了<strong>Paxos</strong>协议，每一笔事务，主库执行完成后，要同步到半数以上库(包括主库自身)，例如3个库中的2个库，或者5个库中的3个库，事务才成功。这样，少数库的异常不会对业务造成太大影响。通过这套处理，OceanBase成为<strong>第一个支持分布式事务的商业数据库</strong>。</p>
-<p>OceanBase 通过“<strong>三地五中心</strong>”部署实现城市级故障自动无损容灾。任何一个城市出故障，比方说杭州断网了，那么剩下的依然超过半数，这个系统还是可以恢复工作的。</p>
-<h3><a id="%E6%88%90%E6%9C%AC%E4%BD%8E" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>成本低</h3>
-<p>OceanBase使用了分布式技术和无共享架构，来自业务的访问会自动分散到多台数据库主机上。在相关技术的支持下，OceanBase还能够<strong>采用廉价的PC服务器作为其数据库主机</strong>。通过这两个方面的变革，运维人员可以愉快地通过增加服务器数量来增加系统的容量和性能。（PC服务器的价格也比小型机、大型机低很多）</p>
-<h2><a id="polardb" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>PolarDB</h2>
-<p><strong>自主研发的下一代关系型分布式云原生数据库</strong>。</p>
-<h3><a id="%E4%B8%8B%E4%B8%80%E4%BB%A3" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>下一代</h3>
-<p>PolarDB采用第三代分布式共享存储架构，实现了计算节点(主要做 SQL 解析以及存储引擎计算的服务器)与存储节点(主要做数据块存储，数据库快照的服务器)的分离，提供了即时生效的可扩展能力和运维能力。同时，POLARDB使用高达50Gbps的RDMA网络来连接其分布式计算节点集群，提升网络性能。</p>
-<h3><a id="%E4%BA%91%E5%8E%9F%E7%94%9F" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>云原生</h3>
-<p>云原生数据库应该是一个较新的概念，在PolarDB的定义下，云原生数据库应该有以下特性：</p>
-<ul>
-<li>
-<p>一个云原生数据库不仅是一个TP数据库，也是一个AP数据库，TP和AP融合在一起，称之为HTAP</p>
-<ul>
-<li>在HTAP中TP和AP共享一份存储，对于分析来说不存在任何数据延迟，由于不需要数据同步，不必把数据从主节点同步到一个只读节点，这时数据是实时的，对于时延要求比较苛刻的应用来说非常有益</li>
-</ul>
-</li>
-<li>
-<p>云原生数据库必须是serverless的，有了serverless，可以大幅削减成本</p>
-<ul>
-<li>serverless可以轻松做到按需使用，按存储付费，计算成本也很低，并且你可以为不同的业务模型指定不同的存储策略，对于忙的业务，可以使用更多的内存和SSD，对于闲置的业务，可以把数据放到HDD盘上，这样可以大幅缩减成本。<br />
-<img src="media/15605037286643/15604992863278.jpg" alt="15604992863278" /></li>
-</ul>
-</li>
-<li>
-<p>云原生数据库必须是智能的，就像一个顾问，可以承担很多诊断和管理工作，通过这些工作我们可以提升用户体验并让用户不必再关心这些枯燥棘手的事情</p>
-<ul>
-<li>智能顾问会通过数据分析提出SQL或索引优化建议，也可以为链路问题诊断提供帮助</li>
-</ul>
-</li>
-</ul>
-<h2><a id="tidb" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>TiDB</h2>
-<p><strong>开源分布式 HTAP (Hybrid Transactional and Analytical Processing) 数据库</strong>。</p>
-<h3><a id="%E9%87%91%E8%9E%8D%E7%BA%A7%E9%AB%98%E5%8F%AF%E7%94%A8" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>金融级高可用</h3>
-<p>基于 Raft 的多数派选举协议可以提供金融级的 100% 数据强一致性保证，且在不丢失大多数副本的前提下，可以实现故障的自动恢复 (auto-failover)，无需人工介入。</p>
-<h3><a id="%E4%B8%80%E7%AB%99%E5%BC%8Fhtap%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>一站式 HTAP 解决方案</h3>
-<p>TiDB 作为典型的 OLTP 行存数据库，同时兼具强大的 OLAP 性能，配合 TiSpark，可提供一站式 HTAP 解决方案，一份存储同时处理 OLTP &amp; OLAP，无需传统繁琐的 ETL 过程。</p>
-<h3><a id="%E4%BA%91%E5%8E%9F%E7%94%9Fsql%E6%95%B0%E6%8D%AE%E5%BA%93" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>云原生 SQL 数据库</h3>
-<p>TiDB 是为云而设计的数据库，支持公有云、私有云和混合云，使部署、配置和维护变得十分简单。</p>
-<h2><a id="x-db" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>X-DB</h2>
-<p><strong>自主研发的全球级分布式强一致的关系型数据库系统</strong>。</p>
-<h3><a id="%E5%85%A8%E7%90%83%E7%BA%A7%E5%88%86%E5%B8%83%E5%BC%8F%E5%BC%BA%E4%B8%80%E8%87%B4%E6%80%A7" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>全球级分布式强一致性</h3>
-<p>阿里独立设计研发了真正工业级的Paxos独立库——X-Paxos，为分布式高性能数据库X-DB奠定了坚实的基础。</p>
-<p>跨Region/跨国场景下对X-Paxos来说最大的挑战就是如何在高延迟网络下保持高吞吐和相对低延迟，X-Paxos针对高延迟网络做了大量的协议优化尝试和测试，并结合学术界现有的理论成果通过合理的Batching和Pipelining，设计并实现了一整套自适应的针对高延迟高吞吐和低延迟高吞吐网络的通信模式，极大的提升了X-Paxos的性能。类似的优化大部分还在理论阶段，在同类竞品中还非常的罕见。</p>
-<p><img src="media/15605037286643/15605021923453.jpg" alt="15605021923453" /></p>
+      <p>传统二分类问题中，训练集中所有样本都有明确的0-1标签，PU Learning(Learning from Positive and Unlabeled Example) 的目标与传统二分类问题一致，都是为了训练一个分类器用以区分正负样本。不同点在于：此时只有少数已标注的正样本，并没有负样本。<br />
+这里列举几种常见的PU Learning方法。</p>
+<h2><a id="%E9%80%9A%E8%BF%87%E8%A7%84%E5%88%99%E5%AE%9A%E4%B9%89%E8%B4%9F%E6%A0%B7%E6%9C%AC" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>通过规则定义负样本</h2>
+<p>这种方法的想法较直观，即利用业务知识，提炼出一些规则对部分unlabeled样本进行标注。因为需要与具体业务相结合，没有较通用的标注方式，这里也不过多介绍。</p>
+<h2><a id="%E9%80%9A%E8%BF%87%E7%AE%97%E6%B3%95%E7%AD%9B%E9%80%89%E8%B4%9F%E6%A0%B7%E6%9C%AC" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>通过算法筛选负样本</h2>
+<h3><a id="pu-bagging" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>PU Bagging</h3>
+<p>PU bagging是一种并行化的方法，它随机抽取unlabeled样本作为负样本，并创建一个弱分类器集合来输出每个样本的分数。具体步骤包括：</p>
+<ol>
+<li>随机抽取unlabeled数据的子集和所有正样本，创建一个均衡的训练集，</li>
+<li>用这个bootstrap数据集构建一个分类器，将正样本视为1，将ublabeled视为0</li>
+<li>预测在训练中没有被采样的ublabeled样本的概率分数，称为袋外样本(OOB)</li>
+<li>重复多次，计算OOB的平均分作为样本标注依据<br />
+完成样本标注后，就可以利用样本进行模型训练。<br />
+<img src="media/16445813243669/16445815296539.jpg" alt="" class="mw_img_center" style="width:300px;display: block; clear:both; margin: 0 auto;" /></li>
+</ol>
+<h3><a id="two-step-approach" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>Two-Step Approach</h3>
+<p>此类方法主要包含两个步骤：</p>
+<ol>
+<li>从U (unlabeled) 集合中识别出可靠负样本 (Reliable Negative, RN)</li>
+<li>利用P (positive)集合和RN集合组成训练集，训练一个传统的二分类模型<br />
+<img src="media/16445813243669/16445815469604.jpg" alt="" class="mw_img_center" style="width:300px;display: block; clear:both; margin: 0 auto;" /><br />
+其中，在第一步识别可靠负样本时可使用Spy Technique方法，该方法包含3个步骤：</li>
+<li>从P中随机选择一些正样本S，放入U中作为间谍样本（spy）。此时样本集变为P-S和U+S。其中，从P中划分子集S的数量比例一般为15%</li>
+<li>使用P-S作为正样本，U+S作为负样本，训练一个分类器，对所有样本预测概率 </li>
+<li>以spy样本分布的最小值作为阈值，U中所有低于这个阈值的样本认为是RN<br />
+<img src="media/16445813243669/16445815642208.jpg" alt="" class="mw_img_center" style="width:500px;display: block; clear:both; margin: 0 auto;" /></li>
+</ol>
+<h2><a id="biased-learning" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>Biased Learning</h2>
+<p>该类方法的思想是，把无标签样本当作带有噪声的负样本，通过调整损失函数，提高分错正样本的惩罚系数，让模型更关注对正样本的分类。</p>
+<h2><a id="%E5%8F%82%E8%80%83%E5%8D%9A%E5%AE%A2" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>参考博客</h2>
+<p><a href="https://zhuanlan.zhihu.com/p/98887617">PU Learning在风控中的应用（理论篇）</a><br />
+<a href="https://www.researchgate.net/publication/328900146_Learning_From_Positive_and_Unlabeled_Data_A_Survey">Learning From Positive and Unlabeled Data: A Survey</a><br />
+<a href="https://jerryzhao.com/post/pu-learning-two-step-techniques/">PU learning: Two-Step Techniques</a></p>
 
 
     
@@ -196,16 +173,13 @@
         <div class="large-6 columns">
         <p class="text-left" style="padding:15px 0px;">
       
-          <a href="15704371126805.html" 
-          title="Previous Post: OceanBase登顶TPC-C榜单">&laquo; OceanBase登顶TPC-C榜单</a>
-      
         </p>
         </div>
         <div class="large-6 columns">
       <p class="text-right" style="padding:15px 0px;">
       
-          <a  href="15605036887704.html" 
-          title="Next Post: Oracle Enterprise Manager">Oracle Enterprise Manager &raquo;</a>
+          <a  href="15938652486267.html" 
+          title="Next Post: Vim开发环境搭建">Vim开发环境搭建 &raquo;</a>
       
       </p>
         </div>

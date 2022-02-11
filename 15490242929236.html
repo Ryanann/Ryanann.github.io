@@ -131,21 +131,13 @@
 
       <div class="article-content">
       <p>前面主要对各类垃圾收集算法及垃圾收集器进行了总结，这里希望能对垃圾收集过程做一个简单梳理。在梳理过程中，发现有一些细节书中也没有进行讨论，于是通过搜集资料和个人理解进行了一些补全，如果发现理解存在偏差，会及时修正。</p>
-
-<h2 id="toc_0">GC过程</h2>
-
-<h3 id="toc_1">1. 类装载和程序运行期间</h3>
-
+<h2><a id="gc%E8%BF%87%E7%A8%8B" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>GC过程</h2>
+<h3><a id="1%E7%B1%BB%E8%A3%85%E8%BD%BD%E5%92%8C%E7%A8%8B%E5%BA%8F%E8%BF%90%E8%A1%8C%E6%9C%9F%E9%97%B4" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>1. 类装载和程序运行期间</h3>
 <p>在这个期间最重要的事就是维护GC Roots集合。在类装载过程中，会将其中的静态静态属性引用的对象、常量引用的对象等添加到GC Roots中。程序运行期间，通过事先设定的Safe Points来对栈、寄存器中包含的类对象的引用进行记录，同样将它们添加到GC Roots中。</p>
-
 <p>此外，在程序运行期间还需要对各个区域（如Serial收集器关注的是新生代区域、G1关注各个Region）的Remembered Set进行维护。如果执行的指令是对Reference类型的数据进行写操作，那么在写过程中，需要判断被引用的对象是否同样在当前内存区域，如果当前区域是老年代，而被引用对象在新生代，那么就要在新生代中的Remembered Set进行修改，添加该引用的记录。</p>
-
-<h2 id="toc_2">2. 垃圾收集期间</h2>
-
+<h2><a id="2%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E6%9C%9F%E9%97%B4" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>2. 垃圾收集期间</h2>
 <p>JVM监测到需要进行垃圾回收时，一般采用主动式中断的方式来让各个用户线程停止运行。具体来说，首先会修改某个标志位，然后各个用户线程运行到Safe Points的时候就会自觉地查看该标志位，发现要进行垃圾回收时，就会停止运行。</p>
-
 <p>接下来就进入垃圾收集算法描述的那一套流程了，这里需要强调的就是一些可并发执行的垃圾收集算法，在与用户线程并发执行的过程中会将用户线程新产生的对象引用关系记录在log中，在最后再次标记或者最终标记阶段根据这些log来进行标记修正。算法的其余部分不是本文的重点，具体可以参考上一篇JVM相关文章。</p>
-
 <p>收集算法执行完后，需要注意的是，当标记某些对象应该被回收时，实际上不会马上宣判“死刑”，而是会给一个“改过自新”的机会。针对这些对象，会判断它们是否重写了finalize()方法以及该方法是否已经被执行过。如果重写了且没有被执行过，就会将这些对象放入特定队列中，另开一个线程依次执行它们的finalize()方法，并在执行过程中将涉及到的对象引用操作记录在log。执行完某个对象的finalize方法后，会根据log中的记录再次进行可达性分析，如果这次发现被标记对象从某个GC Root可达，那么就会将它放回内存中，否则就可以直接清除了。</p>
 
 
@@ -251,6 +243,12 @@
 	      
 		      
 			      <li class="post">
+			        <a href="16445813243669.html">PU Learning (Learning from Positive and Unlabeled Example)</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
 			        <a href="15938652486267.html">Vim开发环境搭建</a>
 			      </li>
 		     
@@ -274,10 +272,6 @@
 		     
 		  
 		      
-			      <li class="post">
-			        <a href="15704371126805.html">OceanBase登顶TPC-C榜单</a>
-			      </li>
-		     
 		  
 		      
 		  

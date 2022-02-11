@@ -131,10 +131,8 @@
 
       <div class="article-content">
       <p>父类引用指向子类对象的情况在一些设计模式（如装饰模式）中会使用到，那么在这个过程中，父类的成员变量、成员方法是否会被子类的相应成员覆盖呢？下面通过一个例子进行介绍。</p>
-
-<h2 id="toc_0">样例</h2>
-
-<pre><code class="language-text">public class Test {
+<h2><a id="%E6%A0%B7%E4%BE%8B" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>样例</h2>
+<pre><code class="language-plain_text">public class Test {
     public static void main(String [] args){
         System.out.println(&quot;========Shape initiated with Circle========&quot;);
         Shape shape = new Circle();
@@ -186,10 +184,8 @@ class Circle extends Shape{
     }
 }
 </code></pre>
-
 <p>上述样例来源于网络，我对它做了一些简单的修改，程序运行后的输出如下：</p>
-
-<pre><code class="language-text">========Shape initiated with Circle========
+<pre><code class="language-plain_text">========Shape initiated with Circle========
 shape constructor.
 circle constructor.
 shape
@@ -205,28 +201,18 @@ circle
 true
 circle.
 </code></pre>
-
-<h2 id="toc_1">分析</h2>
-
+<h2><a id="%E5%88%86%E6%9E%90" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>分析</h2>
 <p>这里主要关注shape对象，从输出结果我们可以得出以下结论，同时我也对它们的原因进行了简要分析。</p>
-
-<h3 id="toc_2">1.覆盖非静态方法</h3>
-
+<h3><a id="1%E8%A6%86%E7%9B%96%E9%9D%9E%E9%9D%99%E6%80%81%E6%96%B9%E6%B3%95" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>1.覆盖非静态方法</h3>
 <p>在初始化shape对象的过程中，依然将其当作Circle类进行初始化，因此在调用非静态方法printType()的过程中，也会现在子类中寻找方法，如果子类没有定义才会到父类中进行搜索。这里Circle类定义了printType()所以就直接进行调用。</p>
-
-<h3 id="toc_3">2.不覆盖静态方法</h3>
-
+<h3><a id="2%E4%B8%8D%E8%A6%86%E7%9B%96%E9%9D%99%E6%80%81%E6%96%B9%E6%B3%95" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>2.不覆盖静态方法</h3>
 <p>静态方法从程序开始运行后就已经分配了内存，所有引用到该方法的对象（父类的对象也好子类的对象也好）所指向的都是同一块内存中的数据，也就是该静态方法。子类中如果定义了相同名称的静态方法，并不会重写，而应该是在内存中又分配了一块给子类的静态方法，没有重写这一说。</p>
-
-<h3 id="toc_4">3.不覆盖成员变量</h3>
-
+<h3><a id="3%E4%B8%8D%E8%A6%86%E7%9B%96%E6%88%90%E5%91%98%E5%8F%98%E9%87%8F" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>3.不覆盖成员变量</h3>
 <p>父类中无论静态还是非静态成员变量都不会被子类覆盖，子类如果有名称相同的变量，会另外分配空间，这样在子类对象的内存空间中就会有两个变量。在调用相关变量时，会根据具体的上下文进行区分：</p>
-
 <ul>
 <li>在子类方法中使用或通过子类对象直接调用，则会使用子类的成员变量</li>
 <li>在父类方法中使用或通过父类对象直接调用，则会使用父类的成员变量</li>
 </ul>
-
 <blockquote>
 <p>最后插一句总结：父类引用指向子类对象，在初始化过程中，仍然按照子类对象进行初始化，其确切的类型仍为子类，只不过在具体使用时，套上了父类的面具，做了一些限制。</p>
 </blockquote>
@@ -334,6 +320,12 @@ circle.
 	      
 		      
 			      <li class="post">
+			        <a href="16445813243669.html">PU Learning (Learning from Positive and Unlabeled Example)</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
 			        <a href="15938652486267.html">Vim开发环境搭建</a>
 			      </li>
 		     
@@ -357,10 +349,6 @@ circle.
 		     
 		  
 		      
-			      <li class="post">
-			        <a href="15704371126805.html">OceanBase登顶TPC-C榜单</a>
-			      </li>
-		     
 		  
 		      
 		  

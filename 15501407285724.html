@@ -131,60 +131,71 @@
 
       <div class="article-content">
       <p>网络结构中，书本通常对应用层、传输层的介绍比较明确，因为这部分主要通过软件进行实现；而网络层、链路层、物理层通常只对原理进行介绍，因为这些部分涉及到具体的硬件实现，华为、思科等厂商都有自己定义的协议且有许多保密内容。之前一直对数据传输过程中的一些不太明确，这里就结合书本、博客的讲解，对两个主机间通过IP地址进行数据传输的流程进行简单梳理。</p>
-
-<h2 id="toc_0">具体流程</h2>
-
+<h2><a id="%E5%85%B7%E4%BD%93%E6%B5%81%E7%A8%8B" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>具体流程</h2>
 <ol>
-<li><p>主机A中的某个应用程序需要与主机B进行通信以获取信息。该应用程序调用传输层进而调用网络层提供的接口对数据进行组装，在调用接口的过程中，主要提供以下信息：</p>
+<li>主机A中的某个应用程序需要与主机B进行通信以获取信息。该应用程序调用传输层进而调用网络层提供的接口对数据进行组装，在调用接口的过程中，主要提供以下信息：</li>
+</ol>
 <blockquote>
-<p>主机A的IP地址<br/>
+<p>主机A的IP地址<br />
 主机B的IP地址</p>
-</blockquote></li>
-<li><p>主机A的网络层将子网掩码、主机B的IP地址进行与运算，并与自己的IP比较来判断B是否在自己的子网中</p></li>
-<li><p>如果主机A和B在同一个子网中，那么就可以直接在局域网中进行通信。这种情况下，如果A不知道B的MAC地址，就要先通过ARP(Address Resolution Protocol)协议，以广播的方式通知B告知自己的MAC地址。当A知道B的MAC地址后，链路层就可以将数据进行封装，并发送到局域网中，封装后的数据主要包含以下信息：</p>
+</blockquote>
+<ol start="2">
+<li>
+<p>主机A的网络层将子网掩码、主机B的IP地址进行与运算，并与自己的IP比较来判断B是否在自己的子网中</p>
+</li>
+<li>
+<p>如果主机A和B在同一个子网中，那么就可以直接在局域网中进行通信。这种情况下，如果A不知道B的MAC地址，就要先通过ARP(Address Resolution Protocol)协议，以广播的方式通知B告知自己的MAC地址。当A知道B的MAC地址后，链路层就可以将数据进行封装，并发送到局域网中，封装后的数据主要包含以下信息：</p>
+</li>
+</ol>
 <blockquote>
-<p>源MAC地址：A的MAC地址<br/>
-目的MAC地址：B的MAC地址<br/>
-源IP地址：A的IP地址<br/>
+<p>源MAC地址：A的MAC地址<br />
+目的MAC地址：B的MAC地址<br />
+源IP地址：A的IP地址<br />
 目的IP地址：B的IP地址</p>
 </blockquote>
-<p>如果主机A和B不在同一个子网中，那么A的链路层就需要与局域网中的路由器1进行通信，同样的，如果不知道路由器的MAC地址，也要通过ARP协议获取。然后就可以通过链路层将数据进行封装，并发送到局域网中，封装后的数据主要包含以下信息：</p>
+<pre><code class="language-plain_text">如果主机A和B不在同一个子网中，那么A的链路层就需要与局域网中的路由器1进行通信，同样的，如果不知道路由器的MAC地址，也要通过ARP协议获取。然后就可以通过链路层将数据进行封装，并发送到局域网中，封装后的数据主要包含以下信息：
+</code></pre>
 <blockquote>
-<p>源MAC地址：A的MAC地址<br/>
-目的MAC地址：路由器1的MAC地址<br/>
-源IP地址：A的IP地址<br/>
+<p>源MAC地址：A的MAC地址<br />
+目的MAC地址：路由器1的MAC地址<br />
+源IP地址：A的IP地址<br />
 目的IP地址：B的IP地址</p>
-</blockquote></li>
-<li><p>路由器1获取了数据帧后自底向上层层解析，拆包获取目的IP地址，并判断目的IP对应的主机是否在自己直接联系的某个子网中，如果不在就根据自身路由表确定下一条路由的路径（假设是路由器2）。确定后将路由器2的MAC地址封装到数据帧中，数据帧的主要内容大致如下：</p>
-<blockquote>
-<p>源MAC地址：路由器1的MAC地址<br/>
-目的MAC地址：路由器2的MAC地址<br/>
-源IP地址：A的IP地址<br/>
-目的IP地址：B的IP地址</p>
-</blockquote></li>
-<li><p>之后的路由器都重复步骤4中的内容，直到某个路由器判断出目的IP对应的主机与自身在同一个子网中，此时就可以通过ARP协议获取B的MAC地址，然后在局域网中进行通信，此时数据帧的主要内容大致如下：</p>
-<blockquote>
-<p>源MAC地址：路由器N的MAC地址<br/>
-目的MAC地址：B的MAC地址<br/>
-源IP地址：A的IP地址<br/>
-目的IP地址：B的IP地址</p>
-</blockquote></li>
+</blockquote>
+<ol start="4">
+<li>路由器1获取了数据帧后自底向上层层解析，拆包获取目的IP地址，并判断目的IP对应的主机是否在自己直接联系的某个子网中，如果不在就根据自身路由表确定下一条路由的路径（假设是路由器2）。确定后将路由器2的MAC地址封装到数据帧中，数据帧的主要内容大致如下：</li>
 </ol>
-
-<h2 id="toc_1">概念辨析</h2>
-
+<blockquote>
+<p>源MAC地址：路由器1的MAC地址<br />
+目的MAC地址：路由器2的MAC地址<br />
+源IP地址：A的IP地址<br />
+目的IP地址：B的IP地址</p>
+</blockquote>
 <ol>
-<li><p>路由器、交换机、网桥</p>
+<li>之后的路由器都重复步骤4中的内容，直到某个路由器判断出目的IP对应的主机与自身在同一个子网中，此时就可以通过ARP协议获取B的MAC地址，然后在局域网中进行通信，此时数据帧的主要内容大致如下：</li>
+</ol>
+<blockquote>
+<p>源MAC地址：路由器N的MAC地址<br />
+目的MAC地址：B的MAC地址<br />
+源IP地址：A的IP地址<br />
+目的IP地址：B的IP地址</p>
+</blockquote>
+<h2><a id="%E6%A6%82%E5%BF%B5%E8%BE%A8%E6%9E%90" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>概念辨析</h2>
+<ol>
+<li>
+<p>路由器、交换机、网桥</p>
 <ul>
 <li>路由器工作在网络层、根据IP地址进行路由（确定下一条路由后应该还是需要通过链路层添加MAC地址相关的信息）、可为主机分配IP地址</li>
 <li>交换机工作在链路层、根据MAC地址进行链路选择、工作在局域网中、不可为主机分配IP地址</li>
 <li>网桥即为交换机</li>
-</ul></li>
-<li><p>局域网、子网</p>
+</ul>
+</li>
+<li>
+<p>局域网、子网</p>
 <ul>
 <li>局域网，一般指二层可达的网络。也就是网络里面不需要三层设备（路由器）就可以保证可达性。</li>
 <li>子网，是个相对概念。和局域网没有直接关系。但是，一般在不讲求精确性的语境中，子网却是对应着局域网。即谈论子网指的是全网的子网，，子网内部二层可达，子网之间需要三层设备路由。</li>
-</ul></li>
+</ul>
+</li>
 </ol>
 
 
@@ -290,6 +301,12 @@
 	      
 		      
 			      <li class="post">
+			        <a href="16445813243669.html">PU Learning (Learning from Positive and Unlabeled Example)</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
 			        <a href="15938652486267.html">Vim开发环境搭建</a>
 			      </li>
 		     
@@ -313,10 +330,6 @@
 		     
 		  
 		      
-			      <li class="post">
-			        <a href="15704371126805.html">OceanBase登顶TPC-C榜单</a>
-			      </li>
-		     
 		  
 		      
 		  
@@ -382,6 +395,8 @@ Theme used <a target="_blank" href="http://github.com">GitHub CSS</a>.</p>
 
 
 
+
+<script src="asset/prism.js"></script>
 
 
 <style type="text/css">
