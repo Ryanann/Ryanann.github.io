@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>
     
-  database - 
+  Build System - 
   
   </title>
   
@@ -103,133 +103,154 @@
        
 
  <script type="text/javascript">
-	$(function(){
-		$('#menu_item_index').addClass('is_active');
-	});
+  $(function(){
+    $('#menu_item_index').addClass('is_active');
+  });
 </script>
 <div class="row">
-	<div class="large-8 medium-8 columns">
-		<div class="markdown-body home-categories">
-		
-			<div class="article">
-                <a class="clearlink" href="15704371126805.html">
-                
-                  <h1>OceanBase登顶TPC-C榜单</h1>
-                  <div class="a-content">
-                      
-                      <div class="a-content-text">
-                        
-                        	国庆这几天OceanBase登顶TPC-C榜单的消息引来了不少的讨论。暑假刚在OB实习，感觉团队非常不错，所以在第一时间转发了消息。当时以为不会引起太大关注，没想到后来几天网上的讨论越来越多，身边也有不少同学关注，于是就这里发表一些个人的观点。
-                        
-                      </div>
-                  </div>
-                </a>
-                <div class="read-more clearfix">
-                  <div class="more-left left">
-                  
-                    <span class="date">2019/10/7</span>
-                    <span>posted in&nbsp;</span> 
-          				  
-          					    <span class="posted-in"><a href='database.html'>database</a></span>
-          				   
-                    
+  <div class="large-8 medium-8 columns">
+      <div class="markdown-body article-wrap">
+       <div class="article">
+          
+          <h1>Build System</h1>
+     
+        <div class="read-more clearfix">
+          <span class="date">2022/2/13</span>
 
-                  </div>
-                  <div class="more-right right">
-                  <span class="comments">
-                      
+          <span>posted in&nbsp;</span> 
+          
+              <span class="posted-in"><a href='code.html'>code</a></span>
+           
+         
+          <span class="comments">
+            
 
-                       
-                  </span>
-                  </div>
-                </div>
-              </div><!-- article -->
-        
-			<div class="article">
-                <a class="clearlink" href="15605037286643.html">
-                
-                  <h1>自研分布式关系型数据库</h1>
-                  <div class="a-content">
-                      
-                      <div class="a-content-text">
-                        
-                        	经过几年的研发，如今市面上已经有不少自研数据库。十分好奇这些数据库产品的特点和区别，于是选取了几个知名度较高的数据库产品进行调研。因为对它们的了解还不够，所以没有深入到技术层面进行介绍。
-                        
-                      </div>
-                  </div>
-                </a>
-                <div class="read-more clearfix">
-                  <div class="more-left left">
-                  
-                    <span class="date">2019/6/14</span>
-                    <span>posted in&nbsp;</span> 
-          				  
-          					    <span class="posted-in"><a href='database.html'>database</a></span>
-          				   
-                    
+            
+          </span>
 
-                  </div>
-                  <div class="more-right right">
-                  <span class="comments">
-                      
+        </div>
+      </div><!-- article -->
 
-                       
-                  </span>
-                  </div>
-                </div>
-              </div><!-- article -->
-        
-			<div class="article">
-                <a class="clearlink" href="15605036887704.html">
-                
-                  <h1>Oracle Enterprise Manager</h1>
-                  <div class="a-content">
-                      
-                      <div class="a-content-text">
-                        
-                        	OEM(Oracle enterprise manager)是Oracle数据库提供的一个企业管理的web界面，是一套用来管理和监控Oracle数据库运行情况的组件。
-                        
-                      </div>
-                  </div>
-                </a>
-                <div class="read-more clearfix">
-                  <div class="more-left left">
-                  
-                    <span class="date">2019/6/14</span>
-                    <span>posted in&nbsp;</span> 
-          				  
-          					    <span class="posted-in"><a href='database.html'>database</a></span>
-          				   
-                    
+      <div class="article-content">
+      <p>构建系统(build system)是用来从源代码生成用户可以使用的目标(targets)的自动化工具。目标可以包括库、可执行文件、或者生成的脚本等等。</p>
+<p>通常每个构建系统都有一个对应的构建文件，来指导构建系统如何编译、链接生成可执行程序等等。构建文件中通常描述了要生成的目标、生成目标所需要的源代码文件、依赖库等等内容。不同构建系统使用的构建文件的名称和内容格式规范通常各不相同。</p>
+<h2><a id="%E5%B8%B8%E8%A7%81build-system" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>常见Build System</h2>
+<table>
+<thead>
+<tr>
+<th>Build System</th>
+<th>简介</th>
+<th>构建文件</th>
+<th style="text-align: left">支持系统</th>
+<th style="text-align: left">支持语言</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GNU Make</td>
+<td>类Unix操作系统下的构建系统</td>
+<td>Makefile</td>
+<td style="text-align: left">Linux</td>
+<td style="text-align: left">各类语言，主要用于c/c++</td>
+</tr>
+<tr>
+<td>NMake</td>
+<td>Windows平台下的GNU Make</td>
+<td>.mak</td>
+<td style="text-align: left">Windows</td>
+<td style="text-align: left">Visual Studio支持的各类语言</td>
+</tr>
+<tr>
+<td>MSBuild</td>
+<td>NMake替代品，Visual Studio从2013版本开始使用它作为构建系统。</td>
+<td>.vcproj</td>
+<td style="text-align: left">Windows</td>
+<td style="text-align: left">Visual Studio支持的各类语言</td>
+</tr>
+<tr>
+<td>Ninja</td>
+<td>由Chrome团队开发，特点是构建快速。一般是通过cmake来生成ninja的配置，进而进行编译</td>
+<td>.ninja</td>
+<td style="text-align: left">Linux, Windows</td>
+<td style="text-align: left">各类语言</td>
+</tr>
+<tr>
+<td>Blade</td>
+<td>由腾讯开发，以Ninja作为后端构建工具</td>
+<td>Build文件</td>
+<td style="text-align: left">Linux</td>
+<td style="text-align: left">各类语言</td>
+</tr>
+<tr>
+<td>CMake</td>
+<td>不直接构建并生成目标，而是产生其他构建系统所需要的构建文件，然后再由它们来构建生成最终目标。</td>
+<td>CMakeLists.txt</td>
+<td style="text-align: left">跨平台</td>
+<td style="text-align: left">各类语言</td>
+</tr>
+</tbody>
+</table>
+<h2><a id="go-build-system" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>Go Build System</h2>
+<p>在Golang中，build过程主要由go build执行。它完成了源码的编译与可执行文件的生成。<br />
+go build接收参数为.go文件或目录，默认情况下编译当前目录下所有.go文件。在main包下执行会生成相应的可执行文件，在非main包下，它会做一些检查，生成的库文件放在缓存目录下，在工作目录下并无新文件生成。</p>
+<h3><a id="%E7%BC%96%E8%AF%91%E8%BF%87%E7%A8%8B" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>编译过程</h3>
+<p><img src="media/16447339815718/16459335504756.jpg" alt="" /></p>
+<p>Go编译过程如上图所示，主要包含编译和汇编两个步骤:</p>
+<ul>
+<li>编译：
+<ul>
+<li>前端：词法分析、语法分析、语义分析-&gt;生成平台无关的中间代码</li>
+<li>后端：对中间代码进行优化，得到目标平台的二进制文件</li>
+</ul>
+</li>
+<li>链接：编译器生成的一个个目标文件链接成可执行文件。最终得到的文件是分成各种段的，比如数据段、代码段、BSS段等等，运行时会被装载到内存中。各个段具有不同的读写、执行属性，保护了程序的安全运行。</li>
+</ul>
+<p><img src="media/16447339815718/16459423469244.jpg" alt="" /></p>
+<h3><a id="go-mod%E4%BD%9C%E7%94%A8" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>go.mod作用</h3>
+<p>Go.mod是Golang1.11版本新引入的官方包管理工具用于解决之前没有地方记录依赖包具体版本的问题，方便依赖包的管理。</p>
+<p>有了go.mod，在编译项目时可以找到指定版本的依赖包，从而完成整体项目的编译和链接。</p>
+<h2><a id="%E5%8F%82%E8%80%83%E6%96%87%E6%A1%A3" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>参考文档</h2>
+<p><a href="https://juejin.cn/post/6844904015587704839">CMake学习笔记（一）基本概念介绍、入门教程及CLion安装配置</a><br />
+<a href="https://ninja-build.org/manual.html">The Ninja build system</a><br />
+<a href="https://juejin.cn/post/6844903994108690445">走进Golang之编译器原理</a><br />
+<a href="https://qcrao91.gitbook.io/go/bian-yi-he-lian-jie/go-bian-yi-lian-jie-guo-cheng-gai-shu">Go 编译链接过程概述</a><br />
+<a href="https://juejin.cn/post/6844903848314667022">GO笔记之详解GO的编译执行流程</a><br />
+<a href="https://paper.seebug.org/1749/">劫持 Golang 编译</a></p>
 
-                  </div>
-                  <div class="more-right right">
-                  <span class="comments">
-                      
 
-                       
-                  </span>
-                  </div>
-                </div>
-              </div><!-- article -->
-        
-              
+    
+
+      </div>
+
+      <div class="row">
+        <div class="large-6 columns">
+        <p class="text-left" style="padding:15px 0px;">
+      
+        </p>
+        </div>
+        <div class="large-6 columns">
+      <p class="text-right" style="padding:15px 0px;">
+      
+          <a  href="16445813243669.html" 
+          title="Next Post: PU Learning (Learning from Positive and Unlabeled Example)">PU Learning (Learning from Positive and Unlabeled Example) &raquo;</a>
+      
+      </p>
+        </div>
+      </div>
+      <div class="comments-wrap">
+        <div class="share-comments">
+          
+
+          
+
+          
+        </div>
+      </div>
+    </div><!-- article-wrap -->
+  </div><!-- large 8 -->
 
 
-			<div class="row">
-			  <div class="large-6 columns">
-			  <p class="text-left" style="padding-top:25px;">
-			   
-			  </p>
-			  </div>
-			  <div class="large-6 columns">
-			<p class="text-right" style="padding-top:25px;">
-			
-			</p>
-			  </div>
-			</div>
-		</div>
-	</div><!-- large 8 -->
+
 
  <div class="large-4 medium-4 columns">
   <div class="hide-for-small">
