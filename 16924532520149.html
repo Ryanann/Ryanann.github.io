@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>
     
-  第四届阿里中间件性能挑战赛（初赛） - 
+  Transformers包 - 
   
   </title>
   
@@ -112,14 +112,14 @@
       <div class="markdown-body article-wrap">
        <div class="article">
           
-          <h1>第四届阿里中间件性能挑战赛（初赛）</h1>
+          <h1>Transformers包</h1>
      
         <div class="read-more clearfix">
-          <span class="date">2019/2/17</span>
+          <span class="date">2023/8/19</span>
 
           <span>posted in&nbsp;</span> 
           
-              <span class="posted-in"><a href='code%20race.html'>code race</a></span>
+              <span class="posted-in"><a href='machine%20learning.html'>machine learning</a></span>
            
          
           <span class="comments">
@@ -132,49 +132,141 @@
       </div><!-- article -->
 
       <div class="article-content">
-      <p>2018年的5月到7月和另外两位同学一起参加了阿里中间件性能挑战赛，比赛分为初赛、复赛和总决赛三个阶段，初赛阶段有3000多支队伍参加，前200名可以进入复赛。这里先把初赛的相关内容整理了一下。</p>
-<h2><a id="%E8%83%8C%E6%99%AF" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>背景</h2>
-<h3><a id="dubbo" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>Dubbo</h3>
-<p>Apache Dubbo是一款开源的高性能Java RPC通信框架。通过它，我们可以非常便捷地在微服务场景下实现服务的注册/发现、RPC通信、负载均衡、服务熔断等功能，因此我们也可以称它为一套完备的服务治理框架。</p>
-<p><img src="media/15503914310559/architecture.png" alt="architecture" /></p>
-<p>官方给出的<a href="https://github.com/apache/incubator-dubbo" title="Dubbo Github">样例</a>中，我们只需要在Consumer和Provider端定义同意的接口，然后在Provider中完成服务的具体实现，几行代码，就可以构建一个分布式服务系统，可谓非常方便。</p>
-<h3><a id="service-mesh" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>Service Mesh</h3>
-<p>Service Mesh是微服务系统实现的一种方式。通过Service Mesh实现服务治理不需要改变服务本身，通过以proxy或sidecar形式部署的Agent，所有进出服务的流量都会被Agent拦截并处理，这样一来微服务场景下的各种服务治理能力都可以通过Agent来完成。</p>
-<h3><a id="%E6%AF%94%E8%B5%9B%E9%9C%80%E6%B1%82" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>比赛需求</h3>
-<p>有人将微服务的发展分为3个阶段：</p>
+      <p><img src="media/16924532520149/16930222139568.jpg" alt="" /></p>
+<p>Transformers 是 huggingface 推出的 NLP python 库。兼容 pytorch, tensorflow 等框架，提供了数以千计的预训练模型，支持 100 多种语言的文本分类、信息抽取、问答、摘要、翻译、文本生成。它的宗旨是让最先进的 NLP 技术人人易用，从下面的例子可以看出确实简洁易用。</p>
+<h2><a id="%E4%BD%BF%E7%94%A8%E6%A0%B7%E4%BE%8B" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>使用样例</h2>
+<pre><code class="language-plain_text">from transformers import pipeline
+
+# 情感分析
+classifier = pipeline('sentiment-analysis')
+classifier('We love AI a lot')
+
+#&gt;&gt;&gt; output: [{'label': 'POSITIVE', 'score': 0.9996680428695679}]
+</code></pre>
+<p>三行代码就调用了开源模型并且完成了情感分析。第二行代码下载并缓存了预训练模型，第三行代码则在给定的文本上进行了评估。</p>
+<pre><code class="language-plain_text">from transformers import AutoTokenizer
+import transformers
+import torch
+
+tokenizer = AutoTokenizer.from_pretrained('model_file/Llama-2-7b-chat-hf')
+pipeline = transformers.pipeline(
+    &quot;text-generation&quot;, # 任务类型
+    model=model_path,
+    torch_dtype=torch.float16, # 参数精度
+    device_map=&quot;auto&quot;, # 参数将模型的计算设备名(如cuda:0)映射到GPU上
+)
+
+answer = pipeline(
+    'write a poem in praise of life',
+    do_sample=True, 
+    top_k=10,
+    num_return_sequences=1,
+    eos_token_id=tokenizer.eos_token_id,
+    max_length=200
+)
+
+</code></pre>
+<p>这是一个调用本地pytorch模型进行问题回答的case，同样十分简洁。本文余下部分主要对上述case中的一些参数进行介绍。</p>
+<h2><a id="%E6%A8%A1%E5%9E%8B%E6%96%87%E4%BB%B6" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>模型文件</h2>
+<p><strong>safetensors</strong><br />
+huggingface 推出的一种安全快速的模型存储格式。transformer 加载本地包时优先分析文件夹中是否有 <code>model.safetensors.index.json</code> 文件，若有则按照 safetensors 格式加载模型，否则查看是否有其他格式的模型文件。</p>
+<ul>
+<li>safetensors: <a href="https://huggingface.co/docs/diffusers/using-diffusers/using_safetensors">https://huggingface.co/docs/diffusers/using-diffusers/using_safetensors</a></li>
+</ul>
+<p>此外模型文件中的 <code>config.json</code>文件记录了模型的一些主要信息，样例如下</p>
+<pre><code class="language-plain_text">{
+  &quot;_name_or_path&quot;: &quot;meta-llama/Llama-2-7b-chat-hf&quot;,
+  &quot;architectures&quot;: [
+    &quot;LlamaForCausalLM&quot;
+  ],
+  &quot;bos_token_id&quot;: 1,
+  &quot;eos_token_id&quot;: 2,
+  &quot;hidden_act&quot;: &quot;silu&quot;,
+  &quot;hidden_size&quot;: 4096,
+  &quot;initializer_range&quot;: 0.02,
+  &quot;intermediate_size&quot;: 11008,
+  &quot;max_position_embeddings&quot;: 4096,
+  &quot;model_type&quot;: &quot;llama&quot;,
+  &quot;num_attention_heads&quot;: 32,
+  &quot;num_hidden_layers&quot;: 32,
+  &quot;num_key_value_heads&quot;: 32,
+  &quot;pretraining_tp&quot;: 1,
+  &quot;rms_norm_eps&quot;: 1e-06,
+  &quot;rope_scaling&quot;: null,
+  &quot;tie_word_embeddings&quot;: false,
+  &quot;torch_dtype&quot;: &quot;float16&quot;,
+  &quot;transformers_version&quot;: &quot;4.32.0.dev0&quot;,
+  &quot;use_cache&quot;: true,
+  &quot;vocab_size&quot;: 32000
+}
+</code></pre>
+<h2><a id="tokenizer%E5%8A%A0%E8%BD%BD" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>tokenizer加载</h2>
+<p>tokenizer 的选择也同样通过模型文件中的配置文件来确定。具体地，会读取 <code>tokenizer_config.json</code> 文件并根据其中 <code>tokenizer_class</code> 字段的值选取相应类。</p>
+<pre><code class="language-plain_text">{
+  &quot;add_bos_token&quot;: true,
+  &quot;add_eos_token&quot;: false,
+  &quot;bos_token&quot;: {
+    &quot;__type&quot;: &quot;AddedToken&quot;,
+    &quot;content&quot;: &quot;&lt;s&gt;&quot;,
+    &quot;lstrip&quot;: false,
+    &quot;normalized&quot;: false,
+    &quot;rstrip&quot;: false,
+    &quot;single_word&quot;: false
+  },
+  &quot;clean_up_tokenization_spaces&quot;: false,
+  &quot;eos_token&quot;: {
+    &quot;__type&quot;: &quot;AddedToken&quot;,
+    &quot;content&quot;: &quot;&lt;/s&gt;&quot;,
+    &quot;lstrip&quot;: false,
+    &quot;normalized&quot;: false,
+    &quot;rstrip&quot;: false,
+    &quot;single_word&quot;: false
+  },
+  &quot;legacy&quot;: false,
+  &quot;model_max_length&quot;: 1000000000000000019884624838656,
+  &quot;pad_token&quot;: null,
+  &quot;padding_side&quot;: &quot;right&quot;,
+  &quot;sp_model_kwargs&quot;: {},
+  &quot;tokenizer_class&quot;: &quot;LlamaTokenizer&quot;,
+  &quot;unk_token&quot;: {
+    &quot;__type&quot;: &quot;AddedToken&quot;,
+    &quot;content&quot;: &quot;&lt;unk&gt;&quot;,
+    &quot;lstrip&quot;: false,
+    &quot;normalized&quot;: false,
+    &quot;rstrip&quot;: false,
+    &quot;single_word&quot;: false
+  }
+}
+</code></pre>
+<h2><a id="%E6%A8%A1%E5%9E%8B%E5%8A%A0%E8%BD%BD%E5%92%8C%E6%8E%A8%E7%90%86" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>模型加载和推理</h2>
+<p><strong>pipeline</strong><br />
+Transformers 库最基础的对象就是 pipeline() 函数，它封装了预训练模型和对应的前处理和后处理环节。我们只需输入文本，就能得到预期的答案。目前常用的 pipelines 有：</p>
+<ul>
+<li>feature-extraction （获得文本的向量化表示）</li>
+<li>fill-mask （填充被遮盖的词、片段）</li>
+<li>ner（命名实体识别）</li>
+<li>question-answering （自动问答）</li>
+<li>sentiment-analysis （情感分析）</li>
+<li>summarization （自动摘要）</li>
+<li>text-generation （文本生成）</li>
+<li>translation （机器翻译）</li>
+<li>zero-shot-classification （零训练样本分类）</li>
+</ul>
+<p>pipelie 封装了许多操作，在上面列举的 case 中 pipeline 主要做了三个步骤(具体可参考&gt;&gt;&gt;<a href="https://transformers.run/intro/2021-12-08-transformers-note-1/#%25E8%25BF%2599%25E4%25BA%259B-pipeline-%25E8%2583%258C%25E5%2590%258E%25E5%2581%259A%25E4%25BA%2586%25E4%25BB%2580%25E4%25B9%2588">tutorial</a>)：</p>
 <ol>
-<li>初级——将服务发现、负载均衡等技术跟业务逻辑代码封装在一起</li>
-<li>中级——提供公用库或框架，使得业务逻辑和服务治理功能具有更低的耦合性</li>
-<li>高级——通过网络代理实现服务治理，代理作为新的独立层完全从业务逻辑中抽离</li>
+<li>预处理 (preprocessing)，将原始文本转换为模型可以接受的输入格式；</li>
+<li>将处理好的输入送入模型；</li>
+<li>对模型的输出进行后处理 (postprocessing)，将其转换为人类方便阅读的格式。<br />
+<img src="media/16924532520149/16930264954724.jpg" alt="" /></li>
 </ol>
-<p>通过比较发现，Dubbo似乎属于中级解决方案，而Service Mesh则属于高级方案。<br />
-初赛的题目就从这里出发，希望实现一个简化版的Agent，用Service Mesh的思想对Dubbo进行改进。主办方希望通过这个方向上的努力，缓解Dubbo的通信和服务治理能力局限在Java领域的问题。</p>
-<p>下面这张图片展示了赛题限定的系统架构。共有5个Docker实例，一个etcd服务、一个Consumer端、三个Provider端，其中我们关注的就是其中四个Agent的实现。每个Agent都需要有通信协议解析、转发消息的功能，Consumer端的Agent还需要有负载均衡的功能。</p>
-<p><img src="media/15503914310559/15504047517472.png" alt="" /></p>
-<h2><a id="%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>解决方案</h2>
-<h3><a id="%E5%A4%84%E7%90%86%E6%B5%81%E7%A8%8B" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>处理流程</h3>
-<p>从Agent的角度看，系统的大致流程如下：</p>
-<ol>
-<li>Consumer Agent实例启动时，会从etcd中读取Service信息，然后就通过Load Balancer进行HTTP Request的预处理和转发，以及接收Provider Agent发送过来的HTTP Response并转发回客户端。Consumer Agent通过event loop来管理所有的连接。</li>
-<li>Provider Agent实例启动时，向etcd注册Service信息，然后就不断获取Consumer Agent发送过来的请求，翻译成Dubbo请求并发送给自己的Dubbo Provider；等待Dubbo Provider返回请求，并翻译为HTTP Response返回给Consumer Agent</li>
-<li>Load balancer在Consumer Agent接受客户端时就固定了一个Provider，通过权重分配的方式，保证了Provider的压力是稳定的</li>
-<li>Consumer Agent与Consumer之间使用TCP通信，与Provider Agent之间使用UDP通信；Provider Agent与Provider之间使用TCP通信</li>
-<li>Consumer Agent在发送请求时，会附送一个唯一的id，这个id将一路发送到Provider，而Provider会将这个id返回给Provider Agent，然后由Provider Agent发送给Consumer Agent，从而Consumer Agent可以确定是哪一个客户端发送的请求</li>
-<li>event loop使用level-triggered模式只监视所有socket的读，而所有的写使用同步写的方式保证延时不会高</li>
-</ol>
-<h3><a id="%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>负载均衡</h3>
-<p>负载均衡的实现非常简单，就是根据各个Provider实例的性能进行平均分配。当分配完成后，会以键值对的形式对被分配的输入fd和输出目的地址进行绑定，这样在下一次对相同的输入fd进行负载分配时，就可以直接使用之前的分配结果。</p>
-<h3><a id="agent%E7%BD%91%E7%BB%9C%E9%80%9A%E4%BF%A1%E7%AE%A1%E7%90%86" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>Agent网络通信管理</h3>
-<p>Consumer Agent中的网络通信使用epoll进行管理。因为Consumer使用HTTP协议与Agent进行通信，在系统运行过程中，会与Agent建立多个网络连接。如果采用老的通信管理模式，就需要为每个连接创建新的线程，线程数太多会对系统效率造成影响。使用epoll对它们进行管理可以避免创建很多线程，降低线程上下文切换开销，提升资源利用率。</p>
-<p>最终实现中，Provider Agent与Consumer Agent和Provider的通信都只使用一个稳定的socket连接，因此采用最简单的实现方式（为每个连接创建一个线程进行管理）是最高效的方式。每个线程做的事也非常简单，仅仅是将一个端口接受到的信息转发到另一个端口。</p>
-<h3><a id="tcp-nodelay" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>TCP_NODELAY</h3>
-<p>TCP_NODELAY仅仅是对TCP连接的属性进行了一个简单的设置，就给我们的成绩带来了较大的提升。</p>
-<p>默认情况下，TCP通信会使用Nagle算法对传输数据进行优化。TCP/IP协议中，无论发送多少数据，总是要在数据前面加上协议头，同时，对方接收到数据，也需要发送ACK表示确认。为了尽可能的利用网络带宽、提升吞吐量，TCP总是希望尽可能的发送足够大的数据。当即将被发送的数据长度太小且上一个发送的小数据未收到ACK时，Nagle算法会延迟该数据的发送，直到有新的数据到来将它们整合成一个较大的数据包，再进行发送。这样可以避免网络中充斥许多小数据块的情况，以此来提高网络中有效信息的占比。</p>
-<p>在我们的实现中，通过设置TCP_NODELAY属性，将Nagle算法关闭，这样小的数据块也会立即被发送到网络中。这么实现虽然牺牲了网络吞吐量，但是提高了QPS，而后者才是我们的直接目标。</p>
-<h3><a id="consumer-agent%E4%B8%8Eprovider-agent%E9%97%B4%E9%87%87%E7%94%A8udp%E9%80%9A%E4%BF%A1" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>Consumer Agent与Provider Agent间采用UDP通信</h3>
-<p>因为赛题的评估指标是QPS，且并没有要求每个Request都要正确应答，因此尝试将Agent间的TCP通信改为UDP，最终结果有一些提升但是效果不明显。</p>
-<h2><a id="%E5%85%B6%E4%BB%96%E6%96%B9%E6%A1%88" class="anchor" aria-hidden="true"><span class="octicon octicon-link"></span></a>其他方案</h2>
-<p>实现过程中也尝试了其他的一些方案，之后有时间也整理一下，看看有没有什么值得放上来的。</p>
+<p><strong>参数精度</strong><br />
+关于模型加载和推理的另外一个研究热点是参数精度。使用pipeline加载模型时我们通过<code>torch_dtype</code>参数指定精度，其实模型文件中也有同样的字段标注模型的精度情况。正常情况下 <code>torch_dtype=torch.float32</code>的模型也可以使用<code>torch_dtype=torch.float16</code>进行加载，以此节省GPU内存占用。</p>
+<p>除此之外也有专门的研究工作探索在不改变推理效果的情况下尽量减少模型占用的内存。例如通过量化技术使用int8甚至更低的精度来加在模型。<br />
+简单来说，量化技术使用线性或者非线性的方法把模型参数由<code>float16</code>范围映射到[-128, 127]或者更小的范围，在推理过程中再通过逆操作得到目标结果。</p>
+<ul>
+<li>LLM.int8量化：huggingface联合研究并深度集成的量化方案，无需额外训练过程，支持使用int8加载模型（参考文档&gt;&gt;&gt;<a href="https://arxiv.org/abs/2208.07339">1</a>, <a href="https://huggingface.co/blog/zh/hf-bitsandbytes-integration">2</a>, <a href="https://zhuanlan.zhihu.com/p/645308698">3</a>）</li>
+<li>GPTQ量化：需要数据和训练过程来完成量化，支持int4精度加载模型，当前已有针对LLAMA的量化模型 （参考文档&gt;&gt;&gt;<a href="https://arxiv.org/abs/2210.17323">1</a>, <a href="https://towardsdatascience.com/4-bit-quantization-with-gptq-36b0f4f02c34">2</a>, <a href="https://github.com/qwopqwop200/GPTQ-for-LLaMa">3</a>）</li>
+</ul>
 
 
     
@@ -185,16 +277,13 @@
         <div class="large-6 columns">
         <p class="text-left" style="padding:15px 0px;">
       
-          <a href="15503925195196.html" 
-          title="Previous Post: 第四届阿里中间件性能挑战赛（复赛）">&laquo; 第四届阿里中间件性能挑战赛（复赛）</a>
-      
         </p>
         </div>
         <div class="large-6 columns">
       <p class="text-right" style="padding:15px 0px;">
       
-          <a  href="15502058354272.html" 
-          title="Next Post: 父类引用指向子类对象">父类引用指向子类对象 &raquo;</a>
+          <a  href="16447339815718.html" 
+          title="Next Post: Build System">Build System &raquo;</a>
       
       </p>
         </div>
@@ -375,6 +464,8 @@ Theme used <a target="_blank" href="http://github.com">GitHub CSS</a>.</p>
 
 
 
+
+<script src="asset/prism.js"></script>
 
 
 <style type="text/css">
